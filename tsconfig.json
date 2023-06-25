@@ -1,0 +1,54 @@
+{
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "es6",
+    "lib": ["dom", "es6", "es2017", "esnext.asynciterable"],
+    // Required by typegraphql
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    /* Compilation */
+    "incremental": true,
+    "composite": true,
+
+    /* Modules */
+    "module": "commonjs",
+    "baseUrl": ".",
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+
+    /* JavaScript Support */
+    "allowJs": false,
+
+    /* Emit */
+    "rootDir": "src",
+    "outDir": "./dist",
+    "sourceMap": true,
+    "removeComments": true,
+    "declaration": true,
+
+    /* Interop Constraints */
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Type Checking */
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Completeness */
+    "skipLibCheck": true,
+  }
+}

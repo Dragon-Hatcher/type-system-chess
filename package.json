@@ -1,0 +1,17 @@
+{
+  "name": "ts-types-chess",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "watch": "tsc -w",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon dist/index.js -w dist -w ../common/dist",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.1",
+    "nodemon": "^2.0.22",
+    "typescript": "^5.1.3"
+  }
+}
