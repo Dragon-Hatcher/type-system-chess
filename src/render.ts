@@ -1,20 +1,20 @@
 type RenderColoredPiece<P extends ColoredPiece | null> = P extends ColoredPiece
   ? {
       White: {
-        Pawn: "p";
-        Bishop: "b";
-        Knight: "n";
-        Rook: "r";
-        Queen: "q";
-        King: "k";
-      };
-      Black: {
         Pawn: "P";
         Bishop: "B";
         Knight: "N";
         Rook: "R";
         Queen: "Q";
         King: "K";
+      };
+      Black: {
+        Pawn: "p";
+        Bishop: "b";
+        Knight: "n";
+        Rook: "r";
+        Queen: "q";
+        King: "k";
       };
     }[P["color"]][P["piece"]]
   : ".";
@@ -41,7 +41,6 @@ type _RenderRank<
   ? A
   : _RenderRank<P, DropFirst<F>, `${A} ${RenderColoredPiece<P[F[0]]>}`>;
 
-
 type RenderSquareSet<S extends Square> = {
   0: "  A B C D E F G H  ";
   1: Concat3<"1", RenderRankSquares<S, "1">, " 1">;
@@ -53,8 +52,12 @@ type RenderSquareSet<S extends Square> = {
   7: Concat3<"7", RenderRankSquares<S, "7">, " 7">;
   8: Concat3<"8", RenderRankSquares<S, "8">, " 8">;
   9: "  A B C D E F G H  ";
-}
-type RenderRankSquares<S extends Square, R extends Rank> = _RenderRankSquares<S, R, OrderedFiles>;
+};
+type RenderRankSquares<S extends Square, R extends Rank> = _RenderRankSquares<
+  S,
+  R,
+  OrderedFiles
+>;
 type _RenderRankSquares<
   S extends Square,
   R extends Rank,
@@ -62,4 +65,9 @@ type _RenderRankSquares<
   A extends string = ""
 > = F extends []
   ? A
-  : _RenderRankSquares<S, R, DropFirst<F>, `${A} ${{ rank: R, file: F[0]} extends S ? "#" : "."}`>;
+  : _RenderRankSquares<
+      S,
+      R,
+      DropFirst<F>,
+      `${A} ${{ rank: R; file: F[0] } extends S ? "#" : "."}`
+    >;
