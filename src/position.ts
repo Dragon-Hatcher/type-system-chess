@@ -54,6 +54,7 @@ type OffsetSquare<S extends Square, O extends SquareOffset> = OffsetRank<
     };
 
 type Color = "White" | "Black";
+type Other<C extends Color> = C extends "White" ? "Black" : "White";
 type Piece = "Pawn" | "Bishop" | "Knight" | "Rook" | "Queen" | "King";
 type ColoredPiece = {
   color: Color;
@@ -63,7 +64,7 @@ type ColoredPiece = {
 type PiecePositions = {
   [r in Rank]: { [f in CFile]: ColoredPiece | null };
 };
-type IdxP<P extends PiecePositions, S extends Square> = P[S["rank"]][S["file"]]
+type IdxP<P extends PiecePositions, S extends Square> = P[S["rank"]][S["file"]];
 type State = {
   toMove: Color;
   pieces: PiecePositions;
@@ -73,89 +74,5 @@ type EmptyState = {
   toMove: "White";
   pieces: { [r in Rank]: { [f in CFile]: null } };
 };
-
-type TestState = {
-  toMove: "White";
-  pieces: {
-    1: {
-      A: { color: "White"; piece: "Rook" };
-      B: null;
-      C: { color: "White"; piece: "Knight" };
-      D: null;
-      E: null;
-      F: null;
-      G: null;
-      H: null;
-    };
-    2: {
-      A: { color: "White"; piece: "Rook" };
-      B: null;
-      C: null;
-      D: { color: "Black"; piece: "Rook" };
-      E: { color: "Black"; piece: "Knight" };
-      F: null;
-      G: null;
-      H: null;
-    };
-    3: {
-      A: null;
-      B: null;
-      C: null;
-      D: null;
-      E: null;
-      F: null;
-      G: null;
-      H: null;
-    };
-    4: {
-      A: null;
-      B: null;
-      C: null;
-      D: null;
-      E: null;
-      F: null;
-      G: null;
-      H: null;
-    };
-    5: {
-      A: null;
-      B: null;
-      C: null;
-      D: null;
-      E: { color: "White"; piece: "Rook" };
-      F: null;
-      G: null;
-      H: null;
-    };
-    6: {
-      A: null;
-      B: null;
-      C: null;
-      D: null;
-      E: null;
-      F: null;
-      G: null;
-      H: null;
-    };
-    7: {
-      A: null;
-      B: null;
-      C: null;
-      D: null;
-      E: null;
-      F: null;
-      G: null;
-      H: null;
-    };
-    8: {
-      A: null;
-      B: null;
-      C: null;
-      D: null;
-      E: null;
-      F: null;
-      G: null;
-      H: null;
-    };
-  };
-};
+type StartState =
+  ParseFen<"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">;
