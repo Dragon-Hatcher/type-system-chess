@@ -3,7 +3,7 @@ type ExcludeOccupied<
   OurC extends Color,
   P extends PiecePositions
 > = S extends Square
-  ? P[S["rank"]][S["file"]] extends { color: OurC }
+  ? IdxP<P, S> extends { color: OurC }
     ? never
     : S
   : never;
@@ -11,7 +11,7 @@ type ExcludeOccupied<
 type KingMoveSqs<
   S extends Square,
   P extends PiecePositions
-> = P[S["rank"]][S["file"]] extends { color: infer OurC extends Color }
+> = IdxP<P, S> extends { color: infer OurC extends Color }
   ? ExcludeOccupied<
       | OffsetSquare<S, { rank: -1; file: -1 }>
       | OffsetSquare<S, { rank: -1; file: 0 }>
@@ -29,7 +29,7 @@ type KingMoveSqs<
 type KnightMoveSqs<
   S extends Square,
   P extends PiecePositions
-> = P[S["rank"]][S["file"]] extends {
+> = IdxP<P, S> extends {
   color: infer OurC extends Color;
 }
   ? ExcludeOccupied<
@@ -50,7 +50,7 @@ type Cast<
   S extends Square,
   O extends SquareOffset,
   P extends PiecePositions
-> = P[S["rank"]][S["file"]] extends { color: infer OurC extends Color }
+> = IdxP<P, S> extends { color: infer OurC extends Color }
   ? _Cast<OffsetSquare<S, O>, O, P, OurC>
   : never;
 type _Cast<
@@ -63,7 +63,7 @@ type _Cast<
   ? // We hit the edge of the board.
     A
   : // the square exists
-  P[S["rank"]][S["file"]] extends { color: infer TargetC extends Color }
+  IdxP<P, S> extends { color: infer TargetC extends Color }
   ? // Check if this is our piece or opps.
     TargetC extends OurC
     ? A
@@ -100,7 +100,7 @@ type MoveSqsToMoves<
 type Moves<
   S extends Square,
   Ps extends PiecePositions
-> = Ps[S["rank"]][S["file"]] extends { piece: infer P extends Piece }
+> = IdxP<Ps, S> extends { piece: infer P extends Piece }
   ? P extends "Bishop"
     ? MoveSqsToMoves<S, BishopMoveSqs<S, Ps>>
     : P extends "Knight"
@@ -114,3 +114,4 @@ type Moves<
     // TODO: Castle + Pawn moves
     : never
   : never;
+

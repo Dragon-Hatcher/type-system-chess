@@ -63,6 +63,7 @@ type ColoredPiece = {
 type PiecePositions = {
   [r in Rank]: { [f in CFile]: ColoredPiece | null };
 };
+type IdxP<P extends PiecePositions, S extends Square> = P[S["rank"]][S["file"]]
 type State = {
   toMove: Color;
   pieces: PiecePositions;
