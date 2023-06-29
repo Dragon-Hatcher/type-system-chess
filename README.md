@@ -4,10 +4,13 @@ A chess program written entirely in the Typescript type system.
 TS's type system is actually turing complete so we can make
 anything we want.
 
+![A showcase of the program working. A chess board is shown in the VSCode hover window while focusing the type `PlayChess`](./showcase.png)
+
 ## Features
 
 This chess program features all rules of chess except for draws
 by repetition and the 50 move rule. That means it covers:
+
 - Castling
 - Promotion
 - En Passant
@@ -33,7 +36,7 @@ but this one specifically is where I drew most of my inspiration.
 
 ## Thoughts
 
-As esoteric program languages go TS types aren't really that bad. I 
-would honestly hesitate to even call it a Turing-Tarpit; It's just 
-a slightly strange functional program language. With let bindings, 
+As esoteric program languages go TS types aren't really that bad. I
+would honestly hesitate to even call it a Turing-Tarpit; It's just
+a slightly strange functional program language. With let bindings,
 math, and a big speed increase it could be almost pleasant to use.

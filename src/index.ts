@@ -16,18 +16,28 @@ type __DISPLAY__2 = RenderState<
 // write the movement of the king. This is equivalent notation
 // to the UCI protocol.) The display shows the state of the game
 // after all moves have been applied.
-type __DISPLAY__3 = PlayChess<// Promotion
-`
-  f2f4
-  a7a6
-  f4f5
-  a6a5
-  f5f6
-  a5a4
-  f6g7
-  a4a3
-  g7h8q
+//
+// You can start from a specific position by adding a second argument.
+type __DISPLAY__3 = PlayChess<`
+  f2f3 
+  e7e6
+  g2g4
+  d8h4
 `>;
+
+// Promotion
+// `
+//   f2f4
+//   a7a6
+//   f4f5
+//   a6a5
+//   f5f6
+//   a5a4
+//   f6g7
+//   a4a3
+//   g7h8q
+// `
+
 // Fools mate
 // `
 //   f2f3
@@ -35,6 +45,3 @@ type __DISPLAY__3 = PlayChess<// Promotion
 //   g2g4
 //   d8h4
 // `
-
-// Optionally start from a specific position
-// ,ParseFen<"rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2">
