@@ -1,14 +1,16 @@
 type ParseFen<Fen extends string> =
   Fen extends `${infer FenPieces} ${infer ToMove extends
     | "w"
-    | "b"} ${infer _Castling} ${infer _EP} ${infer _HalfMove} ${infer _FullMove}`
+    | "b"} ${infer Castling} ${infer EP} ${infer _HalfMove} ${infer _FullMove}`
     ? ParseFenPieces<FenPieces> extends PiecePositions
       ? {
           toMove: ToMove extends "w" ? "White" : "Black";
           pieces: ParseFenPieces<FenPieces>;
+          castle: ParseCastling<Castling>;
+          ep: ParseEp<EP>;
         }
-      : null
-    : null;
+      : "Not pieces"
+    : "Not format";
 
 type ParseFenPieces<FPieces extends string> =
   FPieces extends `${infer R8}/${infer R7}/${infer R6}/${infer R5}/${infer R4}/${infer R3}/${infer R2}/${infer R1}`
@@ -77,3 +79,19 @@ type FenPieceTable = {
 type ParseFenPiece<Char extends string> = Char extends keyof FenPieceTable
   ? FenPieceTable[Char]
   : undefined;
+
+type ParseCastling<S extends string> = {
+  White: {
+    kingside: "K" extends StrChars<S> ? true : false;
+    queenside: "Q" extends StrChars<S> ? true : false;
+  };
+  Black: {
+    kingside: "k" extends StrChars<S> ? true : false;
+    queenside: "q" extends StrChars<S> ? true : false;
+  };
+};
+
+type ParseEp<S extends string> =
+  S extends `${infer F extends Lowercase<CFile>}${infer R extends Rank}`
+    ? { rank: R; file: Uppercase<F> }
+    : null;

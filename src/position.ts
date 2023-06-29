@@ -65,9 +65,17 @@ type PiecePositions = {
   [r in Rank]: { [f in CFile]: ColoredPiece | null };
 };
 type IdxP<P extends PiecePositions, S extends Square> = P[S["rank"]][S["file"]];
+type UIdxP<P extends PiecePositions, S extends Square> = Unwrap<IdxP<P, S>>;
 type State = {
   toMove: Color;
   pieces: PiecePositions;
+  ep: Square | null;
+  castle: {
+    [c in Color]: {
+      kingside: boolean;
+      queenside: boolean;
+    };
+  };
 };
 
 type EmptyState = {

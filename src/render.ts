@@ -71,3 +71,17 @@ type _RenderRankSquares<
       DropFirst<F>,
       `${A} ${{ rank: R; file: F[0] } extends S ? "#" : "."}`
     >;
+
+type RenderSquare<S extends Square> = `${S["file"]}${S["rank"]}`;
+type RenderMoveList<M extends Move> = M extends {
+  start: Square;
+  end: Square;
+  piece: ColoredPiece;
+  ep: Square | null;
+}
+  ? `${M["piece"]["piece"]}${RenderSquare<M["start"]>}->${RenderSquare<
+      M["end"]
+    >}${M["ep"] extends Square ? "(ep)" : ""}`
+  : M extends { rookStart: { file: "A" } }
+  ? "O-O-O"
+  : "O-O";
