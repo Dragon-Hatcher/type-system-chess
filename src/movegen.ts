@@ -184,8 +184,7 @@ type PawnPMoveSqs<S extends Square, P extends PiecePositions> = IdxP<
         }
           ? OffsetSquare<S, Forward<OurC, 1>>
           : never)
-  : // TODO: EP
-    never;
+  : never;
 type PawnAttackSqs<S extends Square, P extends PiecePositions> = IdxP<
   P,
   S
@@ -269,8 +268,7 @@ type PMovesForSqC<
     ? MoveSqsToMoves<Ps, S, KingPMoveSqs<S, Ps>> | CastlingMoves<S, St>
     : P extends "Pawn"
     ? MoveSqsToMoves<Ps, S, PawnPMoveSqs<S, Ps>> | PawnEpMoves<S, Ps, St["ep"]>
-    : // TODO: Castle
-      never
+    : never
   : never;
 
 type PMovesForC<S extends State, C extends Color> = _PMovesForC<
