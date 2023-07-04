@@ -9,21 +9,21 @@ use crate::{
 use std::marker::PhantomData;
 
 pub(crate) trait MoveListTy {
-    fn reify() -> Vec<values::Move>;
+    fn reify() -> values::MoveList;
 }
 pub(crate) struct MLNil;
 pub(crate) struct MLCons<M: MoveTy, L: MoveListTy>(PhantomData<(M, L)>);
 
 impl MoveListTy for MLNil {
-    fn reify() -> Vec<values::Move> {
-        Vec::new()
+    fn reify() -> values::MoveList {
+        values::MoveList(Vec::new())
     }
 }
 impl<M: MoveTy, L: MoveListTy> MoveListTy for MLCons<M, L> {
-    fn reify() -> Vec<values::Move> {
-        let mut tail = L::reify();
+    fn reify() -> values::MoveList {
+        let values::MoveList(mut tail) = L::reify();
         tail.insert(0, M::reify());
-        tail
+        values::MoveList(tail)
     }
 }
 
@@ -40,21 +40,21 @@ impl<M: MoveTy, L: MoveListTy> RunAppendMaybeMove<SomeMove<M>> for L {
 }
 
 pub(crate) trait SquareListTy {
-    fn reify() -> Vec<values::Square>;
+    fn reify() -> values::SquareList;
 }
 pub(crate) struct SLNil;
 pub(crate) struct SLCons<S: SquareTy, L: SquareListTy>(PhantomData<(S, L)>);
 
 impl SquareListTy for SLNil {
-    fn reify() -> Vec<values::Square> {
-        Vec::new()
+    fn reify() -> values::SquareList {
+        values::SquareList(Vec::new())
     }
 }
 impl<S: SquareTy, L: SquareListTy> SquareListTy for SLCons<S, L> {
-    fn reify() -> Vec<values::Square> {
-        let mut tail = L::reify();
+    fn reify() -> values::SquareList {
+        let values::SquareList(mut tail) = L::reify();
         tail.insert(0, S::reify());
-        tail
+        values::SquareList(tail)
     }
 }
 
@@ -68,4 +68,19 @@ impl<L: SquareListTy> RunAppendMaybeSquare<NoSquare> for L {
 }
 impl<S: SquareTy, L: SquareListTy> RunAppendMaybeSquare<SomeSquare<S>> for L {
     type Output = SLCons<S, L>;
+}
+
+pub(crate) trait RunConcatSL<L: SquareListTy>: SquareListTy {
+    type Output: SquareListTy;
+}
+pub(crate) type ConcatSL<A, B> = <A as RunConcatSL<B>>::Output;
+
+impl<L: SquareListTy> RunConcatSL<SLNil> for L {
+    type Output = L;
+}
+impl<S: SquareTy, Next: SquareListTy, L: SquareListTy> RunConcatSL<SLCons<S, Next>> for L
+where
+    SLCons<S, L>: RunConcatSL<Next>,
+{
+    type Output = ConcatSL<SLCons<S, L>, Next>;
 }

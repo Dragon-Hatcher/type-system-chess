@@ -1,5 +1,4 @@
 use std::marker::PhantomData;
-
 use crate::{
     board_rep::{board::BoardTy, color::ColorEn},
     values,

@@ -1,22 +1,22 @@
 use super::list::{AppendMaybeSquare, RunAppendMaybeSquare, SLNil, SquareListTy};
 use crate::board_rep::square::{
-    offset::{Neg1, Neg2, Offset, OffsetSquare, Pos1, Pos2, RunOffsetSquare},
+    offset::{Neg1, Offset, OffsetSquare, Pos1, RunOffsetSquare, Zero},
     SquareTy,
 };
 
-pub(crate) trait RunKnightMoveSqs: SquareTy {
+pub(crate) trait RunKingMoveSqs: SquareTy {
     type Output: SquareListTy;
 }
-pub(crate) type KnightMoveSqs<S> = <S as RunKnightMoveSqs>::Output;
+pub(crate) type KingMoveSqs<S> = <S as RunKingMoveSqs>::Output;
 
-type O1 = Offset<Neg2, Neg1>;
-type O2 = Offset<Neg2, Pos1>;
-type O3 = Offset<Pos2, Neg1>;
-type O4 = Offset<Pos2, Pos1>;
-type O5 = Offset<Neg1, Neg2>;
-type O6 = Offset<Pos1, Neg2>;
-type O7 = Offset<Neg1, Pos2>;
-type O8 = Offset<Pos1, Pos2>;
+type O1 = Offset<Neg1, Neg1>;
+type O2 = Offset<Neg1, Zero>;
+type O3 = Offset<Neg1, Pos1>;
+type O4 = Offset<Zero, Neg1>;
+type O5 = Offset<Zero, Pos1>;
+type O6 = Offset<Pos1, Neg1>;
+type O7 = Offset<Pos1, Zero>;
+type O8 = Offset<Pos1, Pos1>;
 
 type L1<S> = AppendMaybeSquare<SLNil, OffsetSquare<S, O1>>;
 type L2<S> = AppendMaybeSquare<L1<S>, OffsetSquare<S, O2>>;
@@ -27,7 +27,7 @@ type L6<S> = AppendMaybeSquare<L5<S>, OffsetSquare<S, O6>>;
 type L7<S> = AppendMaybeSquare<L6<S>, OffsetSquare<S, O7>>;
 type L8<S> = AppendMaybeSquare<L7<S>, OffsetSquare<S, O8>>;
 
-impl<S> RunKnightMoveSqs for S
+impl<S> RunKingMoveSqs for S
 where
     S: SquareTy
         + RunOffsetSquare<O1>

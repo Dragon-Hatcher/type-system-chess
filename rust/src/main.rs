@@ -2,12 +2,12 @@
 
 use crate::{
     board_rep::{
-        board::{Board, BoardRank, Empty, Filled},
+        board::{Board, BoardRank, BoardTy, Empty, Filled},
         color::{self, White},
         piece::{self, ColoredPiece},
-        square::{file, rank, Square},
+        square::{file, rank, set::SquareSetTy, Square},
     },
-    move_gen::{list::MoveListTy, PMovesForSq},
+    move_gen::{attacked::Attacked, list::MoveListTy, PMovesForSq},
 };
 
 mod board_rep;
@@ -35,15 +35,18 @@ type B = Board<
     BoardRank<EE, EE, BP, EE, EE, EE, EE, EE>, // 2
     BoardRank<EE, WP, EE, EE, EE, EE, EE, EE>, // 3
     BoardRank<EE, EE, EE, EE, EE, EE, EE, EE>, // 4
-    BoardRank<EE, EE, EE, EE, EE, EE, EE, EE>, // 5
+    BoardRank<WP, EE, WR, EE, EE, EE, EE, EE>, // 5
     BoardRank<EE, EE, EE, EE, EE, EE, EE, EE>, // 6
     BoardRank<EE, EE, EE, EE, EE, EE, EE, EE>, // 7
     BoardRank<EE, EE, EE, EE, EE, EE, EE, EE>, // 8
 >;
 
 fn main() {
-    type S = Square<rank::R2, file::FA>;
-    type Z = PMovesForSq<S, B, White>;
+    type S = Square<rank::R5, file::FC>;
+    type Y = PMovesForSq<S, B, White>;
+    type Z = Attacked<B, White>;
 
-    dbg!(Z::reify());
+    println!("{}", B::reify());
+    println!("{}", Y::reify().destinations());
+    println!("{}", Z::reify());
 }

@@ -1,14 +1,16 @@
 #![allow(unused)]
 
-use std::fmt::Debug;
+use std::fmt::{write, Debug, Display};
 
-#[derive(Debug)]
+use crate::board_rep::{board::CellEn, square::offset::rank};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Color {
     White,
     Black,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Piece {
     Pawn,
     Bishop,
@@ -18,12 +20,32 @@ pub(crate) enum Piece {
     King,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct ColoredPiece {
     pub(crate) piece: Piece,
-    pub(crate) color: Color
+    pub(crate) color: Color,
+}
+impl Display for ColoredPiece {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let c = match (self.piece, self.color) {
+            (Piece::Pawn, Color::White) => 'P',
+            (Piece::Pawn, Color::Black) => 'p',
+            (Piece::Bishop, Color::White) => 'B',
+            (Piece::Bishop, Color::Black) => 'b',
+            (Piece::Knight, Color::White) => 'N',
+            (Piece::Knight, Color::Black) => 'n',
+            (Piece::Rook, Color::White) => 'R',
+            (Piece::Rook, Color::Black) => 'r',
+            (Piece::Queen, Color::White) => 'Q',
+            (Piece::Queen, Color::Black) => 'q',
+            (Piece::King, Color::White) => 'K',
+            (Piece::King, Color::Black) => 'k',
+        };
+        write!(f, "{c}")
+    }
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Rank {
     R1,
     R2,
@@ -48,8 +70,13 @@ impl Debug for Rank {
         }
     }
 }
+impl Display for Rank {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        <Self as Debug>::fmt(self, f)
+    }
+}
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum File {
     A,
     B,
@@ -61,6 +88,7 @@ pub(crate) enum File {
     H,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub(crate) struct Square {
     pub(crate) rank: Rank,
     pub(crate) file: File,
@@ -71,13 +99,45 @@ impl Debug for Square {
     }
 }
 
-#[derive(Debug)]
-pub(crate) enum Cell {
-    Empty,
-    Filled(ColoredPiece)
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct SquareList(pub Vec<Square>);
+impl Display for SquareList {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use File::*;
+        use Rank::*;
+
+        writeln!(f, "  A B C D E F G H ")?;
+        for rank in [R1, R2, R3, R4, R5, R6, R7, R8] {
+            write!(f, "{rank} ")?;
+            for file in [A, B, C, D, E, F, G, H] {
+                let sq = Square { rank, file };
+                let inc = self.0.contains(&sq);
+                let c = if inc { '#' } else { '.' };
+                write!(f, "{c} ")?;
+            }
+            writeln!(f, "{rank}")?;
+        }
+        writeln!(f, "  A B C D E F G H ")?;
+
+        Ok(())
+    }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Cell {
+    Empty,
+    Filled(ColoredPiece),
+}
+impl Display for Cell {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Cell::Empty => write!(f, "."),
+            Cell::Filled(cp) => write!(f, "{cp}"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct BoardRank {
     pub(crate) a: Cell,
     pub(crate) b: Cell,
@@ -88,8 +148,22 @@ pub(crate) struct BoardRank {
     pub(crate) g: Cell,
     pub(crate) h: Cell,
 }
+impl BoardRank {
+    fn file(&self, r: File) -> Cell {
+        match r {
+            File::A => self.a,
+            File::B => self.b,
+            File::C => self.c,
+            File::D => self.d,
+            File::E => self.e,
+            File::F => self.f,
+            File::G => self.g,
+            File::H => self.h,
+        }
+    }
+}
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct Board {
     pub(crate) r1: BoardRank,
     pub(crate) r2: BoardRank,
@@ -100,17 +174,132 @@ pub(crate) struct Board {
     pub(crate) r7: BoardRank,
     pub(crate) r8: BoardRank,
 }
+impl Board {
+    fn rank(&self, r: Rank) -> &BoardRank {
+        match r {
+            Rank::R1 => &self.r1,
+            Rank::R2 => &self.r2,
+            Rank::R3 => &self.r3,
+            Rank::R4 => &self.r4,
+            Rank::R5 => &self.r5,
+            Rank::R6 => &self.r6,
+            Rank::R7 => &self.r7,
+            Rank::R8 => &self.r8,
+        }
+    }
+}
+impl Display for Board {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use File::*;
+        use Rank::*;
 
-#[derive(Debug)]
+        writeln!(f, "  A B C D E F G H ")?;
+        for rank in [R1, R2, R3, R4, R5, R6, R7, R8] {
+            write!(f, "{rank} ")?;
+            for file in [A, B, C, D, E, F, G, H] {
+                let sq = Square { rank, file };
+                let cell = self.rank(rank).file(file);
+                write!(f, "{cell} ")?;
+            }
+            writeln!(f, "{rank}")?;
+        }
+        writeln!(f, "  A B C D E F G H ")?;
+
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct SquareSetRank {
+    pub(crate) a: bool,
+    pub(crate) b: bool,
+    pub(crate) c: bool,
+    pub(crate) d: bool,
+    pub(crate) e: bool,
+    pub(crate) f: bool,
+    pub(crate) g: bool,
+    pub(crate) h: bool,
+}
+impl SquareSetRank {
+    fn file(&self, r: File) -> bool {
+        match r {
+            File::A => self.a,
+            File::B => self.b,
+            File::C => self.c,
+            File::D => self.d,
+            File::E => self.e,
+            File::F => self.f,
+            File::G => self.g,
+            File::H => self.h,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct SquareSet {
+    pub(crate) r1: SquareSetRank,
+    pub(crate) r2: SquareSetRank,
+    pub(crate) r3: SquareSetRank,
+    pub(crate) r4: SquareSetRank,
+    pub(crate) r5: SquareSetRank,
+    pub(crate) r6: SquareSetRank,
+    pub(crate) r7: SquareSetRank,
+    pub(crate) r8: SquareSetRank,
+}
+impl SquareSet {
+    fn rank(&self, r: Rank) -> &SquareSetRank {
+        match r {
+            Rank::R1 => &self.r1,
+            Rank::R2 => &self.r2,
+            Rank::R3 => &self.r3,
+            Rank::R4 => &self.r4,
+            Rank::R5 => &self.r5,
+            Rank::R6 => &self.r6,
+            Rank::R7 => &self.r7,
+            Rank::R8 => &self.r8,
+        }
+    }
+}
+impl Display for SquareSet {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use File::*;
+        use Rank::*;
+
+        writeln!(f, "  A B C D E F G H ")?;
+        for rank in [R1, R2, R3, R4, R5, R6, R7, R8] {
+            write!(f, "{rank} ")?;
+            for file in [A, B, C, D, E, F, G, H] {
+                let sq = Square { rank, file };
+                let cell = self.rank(rank).file(file);
+                let char = if cell { '#' } else { '.' };
+                write!(f, "{char} ")?;
+            }
+            writeln!(f, "{rank}")?;
+        }
+        writeln!(f, "  A B C D E F G H ")?;
+
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct State {
     pub(crate) to_move: Color,
     pub(crate) pieces: Board,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct Move {
     pub(crate) from: Square,
     pub(crate) to: Square,
+    pub(crate) piece: ColoredPiece,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct MoveList(pub Vec<Move>);
+impl MoveList {
+    pub fn destinations(&self) -> SquareList {
+        SquareList(self.0.iter().map(|m| m.to).collect())
+    }
 }
 
 #[derive(Debug)]

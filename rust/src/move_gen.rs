@@ -1,28 +1,42 @@
 use self::{
+    bishop::{BishopMoveSqs, RunBishopMoveSqs},
+    king::{KingMoveSqs, RunKingMoveSqs},
     knight::{KnightMoveSqs, RunKnightMoveSqs},
-    list::{AppendMaybeMove, MLNil, MoveListTy, RunAppendMaybeMove, SLCons, SLNil, SquareListTy},
+    list::{MLNil, MoveListTy},
+    ml_from_sl::{PMoveLFromSqs, RunPMoveLFromSqs},
+    pawn::{PawnMoves, RunPawnMoves},
+    queen::{QueenMoveSqs, RunQueenMoveSqs},
+    rook::{RookMoveSqs, RunRookMoveSqs},
 };
 use crate::{
     board_rep::{
         board::{
-            idx::{IdxBoard, IdxBoardRank, RunIdxBoard, RunIdxBoardRank, RunIdxRank},
+            idx::{IdxBoard, RunIdxBoard},
             BoardTy, CellEn, Empty, Filled,
         },
         color::{Black, ColorEn, White},
-        piece::{ColoredPiece, Knight, PieceEn},
-        square::{file::FileEn, rank::RankEn, Square, SquareTy},
+        piece::{Bishop, ColoredPiece, ColoredPieceTy, King, Knight, Pawn, PieceEn, Queen, Rook},
+        square::SquareTy,
     },
     values,
 };
 use std::marker::PhantomData;
 
+pub mod attacked;
+pub mod bishop;
+pub mod cast;
+pub mod king;
 pub mod knight;
 pub mod list;
+pub mod ml_from_sl;
+pub mod pawn;
+pub mod queen;
+pub mod rook;
 
 pub(crate) trait MoveTy {
     fn reify() -> values::Move;
 }
-pub(crate) struct Move<From: SquareTy, To: SquareTy>(PhantomData<(From, To)>);
+pub(crate) struct Move<From: SquareTy, To: SquareTy, P: ColoredPieceTy>(PhantomData<(From, To, P)>);
 
 pub(crate) trait MaybeMove {
     fn reify() -> Option<values::Move>;
@@ -41,87 +55,14 @@ impl<M: MoveTy> MaybeMove for SomeMove<M> {
     }
 }
 
-impl<From: SquareTy, To: SquareTy> MoveTy for Move<From, To> {
+impl<From: SquareTy, To: SquareTy, P: ColoredPieceTy> MoveTy for Move<From, To, P> {
     fn reify() -> values::Move {
         values::Move {
             from: From::reify(),
             to: To::reify(),
+            piece: P::reify(),
         }
     }
-}
-
-pub(crate) trait RunPMoveLFromSqs<B: BoardTy, Start: SquareTy, MoverC: ColorEn>:
-    SquareListTy
-{
-    type Output: MoveListTy;
-}
-pub(crate) type PMoveLFromSqs<L, B, Start, MoverC> =
-    <L as RunPMoveLFromSqs<B, Start, MoverC>>::Output;
-
-impl<B: BoardTy, Start: SquareTy, MoverC: ColorEn> RunPMoveLFromSqs<B, Start, MoverC> for SLNil {
-    type Output = MLNil;
-}
-impl<Rest: SquareListTy, End: SquareTy, B: BoardTy, Start: SquareTy, MoverC: ColorEn>
-    RunPMoveLFromSqs<B, Start, MoverC> for SLCons<End, Rest>
-where
-    End: RunPMoveFromSq<B, Start, MoverC>,
-    Rest: RunPMoveLFromSqs<B, Start, MoverC>,
-    PMoveLFromSqs<Rest, B, Start, MoverC>:
-        RunAppendMaybeMove<<End as RunPMoveFromSq<B, Start, MoverC>>::Output>,
-{
-    type Output = AppendMaybeMove<
-        PMoveLFromSqs<Rest, B, Start, MoverC>,
-        <End as RunPMoveFromSq<B, Start, MoverC>>::Output,
-    >;
-}
-
-pub(crate) trait RunPMoveFromSq<B: BoardTy, Start: SquareTy, MoverC: ColorEn>:
-    SquareTy
-{
-    type Output: MaybeMove;
-}
-
-impl<R: RankEn, F: FileEn, B: BoardTy, Start: SquareTy, MoverC: ColorEn>
-    RunPMoveFromSq<B, Start, MoverC> for Square<R, F>
-where
-    B: RunIdxBoardRank<R>,
-    IdxBoardRank<B, R>: RunIdxRank<F>,
-    Square<R, F>: RunPMoveFromSqContents<Start, MoverC, IdxBoard<B, Square<R, F>>>,
-{
-    type Output =
-        <Square<R, F> as RunPMoveFromSqContents<Start, MoverC, IdxBoard<B, Square<R, F>>>>::Output;
-}
-
-pub(crate) trait RunPMoveFromSqContents<Start: SquareTy, MoverC: ColorEn, Contents: CellEn>:
-    SquareTy
-{
-    type Output: MaybeMove;
-}
-
-impl<End: SquareTy, Start: SquareTy, MoverC: ColorEn> RunPMoveFromSqContents<Start, MoverC, Empty>
-    for End
-{
-    type Output = SomeMove<Move<Start, End>>;
-}
-impl<End: SquareTy, Start: SquareTy, P: PieceEn>
-    RunPMoveFromSqContents<Start, White, Filled<ColoredPiece<P, White>>> for End
-{
-    type Output = NoMove;
-}
-impl<End: SquareTy, Start: SquareTy, P: PieceEn>
-    RunPMoveFromSqContents<Start, Black, Filled<ColoredPiece<P, Black>>> for End
-{
-    type Output = NoMove;
-}
-impl<End: SquareTy, Start: SquareTy, P: PieceEn>
-    RunPMoveFromSqContents<Start, White, Filled<ColoredPiece<P, Black>>> for End
-{
-    type Output = SomeMove<Move<Start, End>>;
-}
-impl<End: SquareTy, Start: SquareTy, P: PieceEn>
-    RunPMoveFromSqContents<Start, Black, Filled<ColoredPiece<P, White>>> for End
-{
-    type Output = SomeMove<Move<Start, End>>;
 }
 
 pub(crate) trait RunPMovesForSq<B: BoardTy, MoverC: ColorEn>: SquareTy {
@@ -156,19 +97,50 @@ impl<S: SquareTy, B: BoardTy, P: PieceEn>
 {
     type Output = MLNil;
 }
-impl<S: SquareTy, B: BoardTy> RunPMovesForTypeAtSq<B, White, Filled<ColoredPiece<Knight, White>>>
-    for S
+impl<S: SquareTy, B: BoardTy, C: ColorEn>
+    RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<Knight, C>>> for S
 where
     S: RunKnightMoveSqs,
-    KnightMoveSqs<S>: RunPMoveLFromSqs<B, S, White>,
+    KnightMoveSqs<S>: RunPMoveLFromSqs<B, S, C, Knight>,
 {
-    type Output = PMoveLFromSqs<KnightMoveSqs<S>, B, S, White>;
+    type Output = PMoveLFromSqs<KnightMoveSqs<S>, B, S, C, Knight>;
 }
-impl<S: SquareTy, B: BoardTy> RunPMovesForTypeAtSq<B, Black, Filled<ColoredPiece<Knight, Black>>>
+impl<S: SquareTy, B: BoardTy, C: ColorEn> RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<King, C>>>
     for S
 where
-    S: RunKnightMoveSqs,
-    KnightMoveSqs<S>: RunPMoveLFromSqs<B, S, Black>,
+    S: RunKingMoveSqs,
+    KingMoveSqs<S>: RunPMoveLFromSqs<B, S, C, King>,
 {
-    type Output = PMoveLFromSqs<KnightMoveSqs<S>, B, S, Black>;
+    type Output = PMoveLFromSqs<KingMoveSqs<S>, B, S, C, King>;
+}
+impl<S: SquareTy, B: BoardTy, C: ColorEn> RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<Rook, C>>>
+    for S
+where
+    S: RunRookMoveSqs<B>,
+    RookMoveSqs<S, B>: RunPMoveLFromSqs<B, S, C, Rook>,
+{
+    type Output = PMoveLFromSqs<RookMoveSqs<S, B>, B, S, C, Rook>;
+}
+impl<S: SquareTy, B: BoardTy, C: ColorEn>
+    RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<Bishop, C>>> for S
+where
+    S: RunBishopMoveSqs<B>,
+    BishopMoveSqs<S, B>: RunPMoveLFromSqs<B, S, C, Bishop>,
+{
+    type Output = PMoveLFromSqs<BishopMoveSqs<S, B>, B, S, C, Bishop>;
+}
+impl<S: SquareTy, B: BoardTy, C: ColorEn> RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<Queen, C>>>
+    for S
+where
+    S: RunQueenMoveSqs<B>,
+    QueenMoveSqs<S, B>: RunPMoveLFromSqs<B, S, C, Queen>,
+{
+    type Output = PMoveLFromSqs<QueenMoveSqs<S, B>, B, S, C, Queen>;
+}
+impl<S: SquareTy, B: BoardTy, C: ColorEn> RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<Pawn, C>>>
+    for S
+where
+    S: RunPawnMoves<B>,
+{
+    type Output = PawnMoves<S, B>;
 }
