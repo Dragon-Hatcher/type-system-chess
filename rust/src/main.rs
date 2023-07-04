@@ -7,12 +7,14 @@ use crate::{
         piece::{self, ColoredPiece},
         square::{file, rank, set::SquareSetTy, Square},
     },
-    move_gen::{attacked::Attacked, list::MoveListTy, PMovesForSq},
+    move_gen::{attacked::Attacked, check::IsCheck, list::MoveListTy, PMovesForSq},
+    util::Bool,
 };
 
 mod board_rep;
 mod move_gen;
 mod state;
+mod util;
 mod values;
 
 type WP = Filled<ColoredPiece<piece::Pawn, color::White>>;
@@ -27,26 +29,28 @@ type BN = Filled<ColoredPiece<piece::Knight, color::Black>>;
 type BR = Filled<ColoredPiece<piece::Rook, color::Black>>;
 type BQ = Filled<ColoredPiece<piece::Queen, color::Black>>;
 type BK = Filled<ColoredPiece<piece::King, color::Black>>;
-type EE = Empty;
+type __ = Empty;
 
 type B = Board<
     //        AA  BB  CC  DD  EE  FF  GG  HH
-    BoardRank<WN, EE, EE, EE, EE, EE, EE, EE>, // 1
-    BoardRank<EE, EE, BP, EE, EE, EE, EE, EE>, // 2
-    BoardRank<EE, WP, EE, EE, EE, EE, EE, EE>, // 3
-    BoardRank<EE, EE, EE, EE, EE, EE, EE, EE>, // 4
-    BoardRank<WP, EE, WR, EE, EE, EE, EE, EE>, // 5
-    BoardRank<EE, EE, EE, EE, EE, EE, EE, EE>, // 6
-    BoardRank<EE, EE, EE, EE, EE, EE, EE, EE>, // 7
-    BoardRank<EE, EE, EE, EE, EE, EE, EE, EE>, // 8
+    BoardRank<WN, __, __, __, __, __, __, __>, // 1
+    BoardRank<__, __, BP, __, __, __, __, __>, // 2
+    BoardRank<__, WP, __, __, __, __, __, __>, // 3
+    BoardRank<__, __, __, __, __, __, __, __>, // 4
+    BoardRank<WP, __, WR, __, __, __, BK, __>, // 5
+    BoardRank<__, __, __, __, __, __, __, __>, // 6
+    BoardRank<__, __, __, __, __, __, __, __>, // 7
+    BoardRank<__, __, __, __, __, __, __, __>, // 8
 >;
 
 fn main() {
     type S = Square<rank::R5, file::FC>;
     type Y = PMovesForSq<S, B, White>;
     type Z = Attacked<B, White>;
+    type C = IsCheck<B, White>;
 
-    println!("{}", B::reify());
-    println!("{}", Y::reify().destinations());
-    println!("{}", Z::reify());
+    println!("Board:\n{}", B::reify());
+    println!("Rook moves:\n{}", Y::reify().destinations());
+    println!("White attacks:\n{}", Z::reify());
+    println!("Black checked?: {}", C::reify());
 }

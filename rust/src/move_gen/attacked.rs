@@ -2,7 +2,7 @@ use super::{
     bishop::{BishopMoveSqs, RunBishopMoveSqs},
     king::{KingMoveSqs, RunKingMoveSqs},
     knight::{KnightMoveSqs, RunKnightMoveSqs},
-    list::{ConcatSL, RunConcatSL, SLCons, SLNil, SquareListTy},
+    list::{SLCons, SLNil, SquareListTy},
     pawn::{PawnAttackSqs, RunPawnAttackSqs},
     queen::{QueenMoveSqs, RunQueenMoveSqs},
     rook::{RookMoveSqs, RunRookMoveSqs},

@@ -1,15 +1,13 @@
-use std::marker::PhantomData;
-
-use crate::{
-    move_gen::list::{SLCons, SLNil, SquareListTy},
-    values,
-};
-
 use super::{
     file::{self, FileEn},
     rank::{self, RankEn},
     Square, SquareTy,
 };
+use crate::{
+    move_gen::list::{SLCons, SLNil, SquareListTy},
+    values, util::{Bool, False, True},
+};
+use std::marker::PhantomData;
 
 pub(crate) trait SquareSetTy {
     fn reify() -> values::SquareSet;
@@ -54,26 +52,18 @@ pub(crate) trait SquareSetRankTy {
     fn reify() -> values::SquareSetRank;
 }
 pub(crate) struct SquareSetRank<
-    A: OccupiedEn,
-    B: OccupiedEn,
-    C: OccupiedEn,
-    D: OccupiedEn,
-    E: OccupiedEn,
-    F: OccupiedEn,
-    G: OccupiedEn,
-    H: OccupiedEn,
+    A: Bool,
+    B: Bool,
+    C: Bool,
+    D: Bool,
+    E: Bool,
+    F: Bool,
+    G: Bool,
+    H: Bool,
 >(PhantomData<(A, B, C, D, E, F, G, H)>);
 
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > SquareSetRankTy for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool> SquareSetRankTy
+    for SquareSetRank<A, B, C, D, E, F, G, H>
 {
     fn reify() -> values::SquareSetRank {
         values::SquareSetRank {
@@ -89,128 +79,47 @@ impl<
     }
 }
 
-pub(crate) trait OccupiedEn {
-    fn reify() -> bool;
-}
-pub(crate) struct OccupiedT;
-pub(crate) struct OccupiedF;
-
-impl OccupiedEn for OccupiedT {
-    fn reify() -> bool {
-        true
-    }
-}
-impl OccupiedEn for OccupiedF {
-    fn reify() -> bool {
-        false
-    }
-}
-
 pub(crate) trait RunIdxSSRank<F: FileEn>: SquareSetRankTy {
-    type Output: OccupiedEn;
+    type Output: Bool;
 }
 pub(crate) type IdxSSRank<SS, F> = <SS as RunIdxSSRank<F>>::Output;
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunIdxSSRank<file::FA> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool> RunIdxSSRank<file::FA>
+    for SquareSetRank<A, B, C, D, E, F, G, H>
 {
     type Output = A;
 }
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunIdxSSRank<file::FB> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool> RunIdxSSRank<file::FB>
+    for SquareSetRank<A, B, C, D, E, F, G, H>
 {
     type Output = B;
 }
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunIdxSSRank<file::FC> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool> RunIdxSSRank<file::FC>
+    for SquareSetRank<A, B, C, D, E, F, G, H>
 {
     type Output = C;
 }
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunIdxSSRank<file::FD> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool> RunIdxSSRank<file::FD>
+    for SquareSetRank<A, B, C, D, E, F, G, H>
 {
     type Output = D;
 }
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunIdxSSRank<file::FE> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool> RunIdxSSRank<file::FE>
+    for SquareSetRank<A, B, C, D, E, F, G, H>
 {
     type Output = E;
 }
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunIdxSSRank<file::FF> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool> RunIdxSSRank<file::FF>
+    for SquareSetRank<A, B, C, D, E, F, G, H>
 {
     type Output = F;
 }
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunIdxSSRank<file::FG> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool> RunIdxSSRank<file::FG>
+    for SquareSetRank<A, B, C, D, E, F, G, H>
 {
     type Output = G;
 }
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunIdxSSRank<file::FH> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool> RunIdxSSRank<file::FH>
+    for SquareSetRank<A, B, C, D, E, F, G, H>
 {
     type Output = H;
 }
@@ -325,7 +234,7 @@ impl<
 }
 
 pub(crate) trait RunIsOccupied<S: SquareTy>: SquareSetTy {
-    type Output: OccupiedEn;
+    type Output: Bool;
 }
 pub(crate) type IsOccupied<SS, S> = <SS as RunIsOccupied<S>>::Output;
 
@@ -338,14 +247,14 @@ where
 }
 
 pub(crate) type EmptySSRank = SquareSetRank<
-    OccupiedF,
-    OccupiedF,
-    OccupiedF,
-    OccupiedF,
-    OccupiedF,
-    OccupiedF,
-    OccupiedF,
-    OccupiedF,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
+    False,
 >;
 pub(crate) type EmptySS = SquareSet<
     EmptySSRank,
@@ -362,109 +271,45 @@ pub(crate) trait RunAddToSSRank<F: FileEn>: SquareSetRankTy {
     type Output: SquareSetRankTy;
 }
 pub(crate) type AddToSSRank<SSR, F> = <SSR as RunAddToSSRank<F>>::Output;
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunAddToSSRank<file::FA> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool>
+    RunAddToSSRank<file::FA> for SquareSetRank<A, B, C, D, E, F, G, H>
 {
-    type Output = SquareSetRank<OccupiedT, B, C, D, E, F, G, H>;
+    type Output = SquareSetRank<True, B, C, D, E, F, G, H>;
 }
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunAddToSSRank<file::FB> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool>
+    RunAddToSSRank<file::FB> for SquareSetRank<A, B, C, D, E, F, G, H>
 {
-    type Output = SquareSetRank<A, OccupiedT, C, D, E, F, G, H>;
+    type Output = SquareSetRank<A, True, C, D, E, F, G, H>;
 }
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunAddToSSRank<file::FC> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool>
+    RunAddToSSRank<file::FC> for SquareSetRank<A, B, C, D, E, F, G, H>
 {
-    type Output = SquareSetRank<A, B, OccupiedT, D, E, F, G, H>;
+    type Output = SquareSetRank<A, B, True, D, E, F, G, H>;
 }
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunAddToSSRank<file::FD> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool>
+    RunAddToSSRank<file::FD> for SquareSetRank<A, B, C, D, E, F, G, H>
 {
-    type Output = SquareSetRank<A, B, C, OccupiedT, E, F, G, H>;
+    type Output = SquareSetRank<A, B, C, True, E, F, G, H>;
 }
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunAddToSSRank<file::FE> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool>
+    RunAddToSSRank<file::FE> for SquareSetRank<A, B, C, D, E, F, G, H>
 {
-    type Output = SquareSetRank<A, B, C, D, OccupiedT, F, G, H>;
+    type Output = SquareSetRank<A, B, C, D, True, F, G, H>;
 }
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunAddToSSRank<file::FF> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool>
+    RunAddToSSRank<file::FF> for SquareSetRank<A, B, C, D, E, F, G, H>
 {
-    type Output = SquareSetRank<A, B, C, D, E, OccupiedT, G, H>;
+    type Output = SquareSetRank<A, B, C, D, E, True, G, H>;
 }
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunAddToSSRank<file::FG> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool>
+    RunAddToSSRank<file::FG> for SquareSetRank<A, B, C, D, E, F, G, H>
 {
-    type Output = SquareSetRank<A, B, C, D, E, F, OccupiedT, H>;
+    type Output = SquareSetRank<A, B, C, D, E, F, True, H>;
 }
-impl<
-        A: OccupiedEn,
-        B: OccupiedEn,
-        C: OccupiedEn,
-        D: OccupiedEn,
-        E: OccupiedEn,
-        F: OccupiedEn,
-        G: OccupiedEn,
-        H: OccupiedEn,
-    > RunAddToSSRank<file::FH> for SquareSetRank<A, B, C, D, E, F, G, H>
+impl<A: Bool, B: Bool, C: Bool, D: Bool, E: Bool, F: Bool, G: Bool, H: Bool>
+    RunAddToSSRank<file::FH> for SquareSetRank<A, B, C, D, E, F, G, H>
 {
-    type Output = SquareSetRank<A, B, C, D, E, F, G, OccupiedT>;
+    type Output = SquareSetRank<A, B, C, D, E, F, G, True>;
 }
 
 pub(crate) trait RunAddToSS<S: SquareTy>: SquareSetTy {

@@ -32,6 +32,7 @@ pub mod ml_from_sl;
 pub mod pawn;
 pub mod queen;
 pub mod rook;
+pub mod check;
 
 pub(crate) trait MoveTy {
     fn reify() -> values::Move;
