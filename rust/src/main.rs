@@ -5,10 +5,9 @@ use crate::{
         board::{Board, BoardRank, BoardTy, Empty, Filled},
         color::{self, White},
         piece::{self, ColoredPiece},
-        square::{file, rank, set::SquareSetTy, Square},
     },
-    move_gen::{attacked::Attacked, check::IsCheck, list::MoveListTy, PMovesForSq},
-    util::Bool,
+    move_gen::{list::MoveListTy, moves::Moves},
+    state::State,
 };
 
 mod board_rep;
@@ -33,24 +32,19 @@ type __ = Empty;
 
 type B = Board<
     //        AA  BB  CC  DD  EE  FF  GG  HH
-    BoardRank<WN, __, __, __, __, __, __, __>, // 1
-    BoardRank<__, __, BP, __, __, __, __, __>, // 2
-    BoardRank<__, WP, __, __, __, __, __, __>, // 3
+    BoardRank<__, __, __, __, __, __, __, __>, // 1
+    BoardRank<__, __, __, __, __, __, __, __>, // 2
+    BoardRank<BR, __, WR, __, __, WK, __, __>, // 3
     BoardRank<__, __, __, __, __, __, __, __>, // 4
-    BoardRank<WP, __, WR, __, __, __, BK, __>, // 5
+    BoardRank<__, __, __, __, __, __, __, __>, // 5
     BoardRank<__, __, __, __, __, __, __, __>, // 6
     BoardRank<__, __, __, __, __, __, __, __>, // 7
     BoardRank<__, __, __, __, __, __, __, __>, // 8
 >;
 
 fn main() {
-    type S = Square<rank::R5, file::FC>;
-    type Y = PMovesForSq<S, B, White>;
-    type Z = Attacked<B, White>;
-    type C = IsCheck<B, White>;
+    type M = Moves<State<White, B>>;
 
     println!("Board:\n{}", B::reify());
-    println!("Rook moves:\n{}", Y::reify().destinations());
-    println!("White attacks:\n{}", Z::reify());
-    println!("Black checked?: {}", C::reify());
+    println!("Moves:\n{}", M::reify().destinations());
 }

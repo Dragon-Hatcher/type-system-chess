@@ -3,6 +3,7 @@ use super::{piece::ColoredPieceTy};
 use std::marker::PhantomData;
 
 pub mod idx;
+pub mod write;
 
 pub(crate) trait CellEn {
     fn reify() -> values::Cell;

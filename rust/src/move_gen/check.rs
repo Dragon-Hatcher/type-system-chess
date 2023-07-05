@@ -15,15 +15,15 @@ use crate::{
             AllSqs, SquareTy,
         },
     },
-    util::{Bool, False, Or, RunOr, True},
+    util::{Bool, False, Or, RunOr, True}, state::{StateTy, State}
 };
 
-pub(crate) trait RunIsCheck<MoverC: ColorEn>: BoardTy {
+pub(crate) trait RunIsCheck<MoverC: ColorEn>: StateTy {
     type Output: Bool;
 }
-pub(crate) type IsCheck<B, C> = <B as RunIsCheck<C>>::Output;
+pub(crate) type IsCheck<S, MoverC> = <S as RunIsCheck<MoverC>>::Output;
 
-impl<B: BoardTy, MoverC: ColorEn> RunIsCheck<MoverC> for B
+impl<B: BoardTy, MoverC: ColorEn, C: ColorEn> RunIsCheck<MoverC> for State<C, B>
 where
     B: RunAttacked<MoverC>,
     B: RunSqLIsCheck<Attacked<B, MoverC>, MoverC, AllSqs>,
@@ -76,7 +76,7 @@ pub(crate) trait RunSqIsCheckWC<MoverC: ColorEn, IsAttacked: Bool, C: CellEn> {
 impl<MoverC: ColorEn, C: CellEn> RunSqIsCheckWC<MoverC, False, C> for () {
     type Output = False;
 }
-impl RunSqIsCheckWC<White, True, Empty> for () {
+impl<MoverC: ColorEn> RunSqIsCheckWC<MoverC, True, Empty> for () {
     type Output = False;
 }
 impl<P: PieceEn, MoverC: ColorEn> RunSqIsCheckWC<MoverC, True, Filled<ColoredPiece<P, MoverC>>>
