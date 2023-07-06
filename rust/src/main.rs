@@ -2,33 +2,21 @@
 
 use crate::{
     board_rep::{
-        board::{Board, BoardRank, BoardTy, Empty, Filled},
-        color::{self, White},
-        piece::{self, ColoredPiece},
+        board::{Board, BoardRank, BoardTy},
+        color::White,
     },
     move_gen::{list::MoveListTy, moves::Moves},
     state::State,
 };
+use util::board_creator::*;
 
 mod board_rep;
 mod move_gen;
 mod state;
+#[cfg(test)]
+mod test;
 mod util;
 mod values;
-
-type WP = Filled<ColoredPiece<piece::Pawn, color::White>>;
-type WB = Filled<ColoredPiece<piece::Bishop, color::White>>;
-type WN = Filled<ColoredPiece<piece::Knight, color::White>>;
-type WR = Filled<ColoredPiece<piece::Rook, color::White>>;
-type WQ = Filled<ColoredPiece<piece::Queen, color::White>>;
-type WK = Filled<ColoredPiece<piece::King, color::White>>;
-type BP = Filled<ColoredPiece<piece::Pawn, color::Black>>;
-type BB = Filled<ColoredPiece<piece::Bishop, color::Black>>;
-type BN = Filled<ColoredPiece<piece::Knight, color::Black>>;
-type BR = Filled<ColoredPiece<piece::Rook, color::Black>>;
-type BQ = Filled<ColoredPiece<piece::Queen, color::Black>>;
-type BK = Filled<ColoredPiece<piece::King, color::Black>>;
-type __ = Empty;
 
 type B = Board<
     //        AA  BB  CC  DD  EE  FF  GG  HH

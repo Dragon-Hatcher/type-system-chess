@@ -307,3 +307,10 @@ pub(crate) struct Offset {
     pub(crate) rank: i8,
     pub(crate) file: i8,
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Outcome {
+    Ongoing,
+    Draw,
+    Checkmate(Color)
+}

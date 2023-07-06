@@ -13,6 +13,8 @@ use crate::{
 };
 use std::marker::PhantomData;
 
+pub mod outcome;
+
 pub(crate) trait StateTy {
     fn reify() -> values::State;
 }
