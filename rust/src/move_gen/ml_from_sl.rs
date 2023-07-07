@@ -1,5 +1,5 @@
 use super::{
-    list::{AppendMaybeMove, MLNil, MoveListTy, RunAppendMaybeMove, SLCons, SLNil, SquareListTy},
+    list::{AppendMaybeMove, MoveListTy, RunAppendMaybeMove, SLCons, SLNil, SquareListTy},
     MaybeMove, Move, NoMove, SomeMove,
 };
 use crate::board_rep::{
@@ -12,18 +12,23 @@ use crate::board_rep::{
     square::{file::FileEn, rank::RankEn, Square, SquareTy},
 };
 
-pub(crate) trait RunPMoveLFromSqs<B: BoardTy, Start: SquareTy, MoverC: ColorEn, MoverP: PieceEn>:
-    SquareListTy
+pub(crate) trait RunPMoveLFromSqs<
+    B: BoardTy,
+    Start: SquareTy,
+    MoverC: ColorEn,
+    MoverP: PieceEn,
+    ML: MoveListTy,
+>: SquareListTy
 {
     type Output: MoveListTy;
 }
-pub(crate) type PMoveLFromSqs<L, B, Start, MoverC, MoverP> =
-    <L as RunPMoveLFromSqs<B, Start, MoverC, MoverP>>::Output;
+pub(crate) type PMoveLFromSqs<L, B, Start, MoverC, MoverP, ML> =
+    <L as RunPMoveLFromSqs<B, Start, MoverC, MoverP, ML>>::Output;
 
-impl<B: BoardTy, Start: SquareTy, MoverC: ColorEn, MoverP: PieceEn>
-    RunPMoveLFromSqs<B, Start, MoverC, MoverP> for SLNil
+impl<B: BoardTy, Start: SquareTy, MoverC: ColorEn, MoverP: PieceEn, ML: MoveListTy>
+    RunPMoveLFromSqs<B, Start, MoverC, MoverP, ML> for SLNil
 {
-    type Output = MLNil;
+    type Output = ML;
 }
 impl<
         Rest: SquareListTy,
@@ -32,15 +37,16 @@ impl<
         Start: SquareTy,
         MoverC: ColorEn,
         MoverP: PieceEn,
-    > RunPMoveLFromSqs<B, Start, MoverC, MoverP> for SLCons<End, Rest>
+        ML: MoveListTy,
+    > RunPMoveLFromSqs<B, Start, MoverC, MoverP, ML> for SLCons<End, Rest>
 where
     End: RunPMoveFromSq<B, Start, MoverC, MoverP>,
-    Rest: RunPMoveLFromSqs<B, Start, MoverC, MoverP>,
-    PMoveLFromSqs<Rest, B, Start, MoverC, MoverP>:
+    Rest: RunPMoveLFromSqs<B, Start, MoverC, MoverP, ML>,
+    PMoveLFromSqs<Rest, B, Start, MoverC, MoverP, ML>:
         RunAppendMaybeMove<<End as RunPMoveFromSq<B, Start, MoverC, MoverP>>::Output>,
 {
     type Output = AppendMaybeMove<
-        PMoveLFromSqs<Rest, B, Start, MoverC, MoverP>,
+        PMoveLFromSqs<Rest, B, Start, MoverC, MoverP, ML>,
         <End as RunPMoveFromSq<B, Start, MoverC, MoverP>>::Output,
     >;
 }

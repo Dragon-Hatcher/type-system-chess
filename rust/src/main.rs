@@ -1,4 +1,5 @@
 #![allow(clippy::type_complexity)]
+// #![recursion_limit = "1024"]
 
 use crate::{
     board_rep::{

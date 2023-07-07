@@ -39,22 +39,6 @@ impl<M: MoveTy, L: MoveListTy> RunAppendMaybeMove<SomeMove<M>> for L {
     type Output = MLCons<M, L>;
 }
 
-pub(crate) trait RunConcatML<L: MoveListTy>: MoveListTy {
-    type Output: MoveListTy;
-}
-pub(crate) type ConcatML<A, B> = <A as RunConcatML<B>>::Output;
-
-impl<L: MoveListTy> RunConcatML<MLNil> for L {
-    type Output = L;
-}
-impl<S: MoveTy, Next: MoveListTy, L: MoveListTy> RunConcatML<MLCons<S, Next>> for L
-where
-    MLCons<S, L>: RunConcatML<Next>,
-{
-    type Output = ConcatML<MLCons<S, L>, Next>;
-}
-
-
 pub(crate) trait SquareListTy {
     fn reify() -> values::SquareList;
 }

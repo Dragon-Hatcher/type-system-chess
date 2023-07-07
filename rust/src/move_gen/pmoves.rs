@@ -12,91 +12,100 @@ use super::{
     bishop::{BishopMoveSqs, RunBishopMoveSqs},
     king::{KingMoveSqs, RunKingMoveSqs},
     knight::{KnightMoveSqs, RunKnightMoveSqs},
-    list::{MLNil, MoveListTy, SLCons, SLNil, SquareListTy, ConcatML, RunConcatML},
+    list::{MLNil, MoveListTy, SLCons, SLNil, SquareListTy},
     ml_from_sl::{PMoveLFromSqs, RunPMoveLFromSqs},
     pawn::{PawnMoves, RunPawnMoves},
     queen::{QueenMoveSqs, RunQueenMoveSqs},
     rook::{RookMoveSqs, RunRookMoveSqs},
 };
 
-pub(crate) trait RunPMovesForSq<B: BoardTy, MoverC: ColorEn>: SquareTy {
+pub(crate) trait RunPMovesForSq<B: BoardTy, MoverC: ColorEn, ML: MoveListTy>:
+    SquareTy
+{
     type Output: MoveListTy;
 }
-pub(crate) type PMovesForSq<S, B, MoverC> = <S as RunPMovesForSq<B, MoverC>>::Output;
+pub(crate) type PMovesForSq<S, B, MoverC, ML> = <S as RunPMovesForSq<B, MoverC, ML>>::Output;
 
-impl<S: SquareTy, B: BoardTy, MoverC: ColorEn> RunPMovesForSq<B, MoverC> for S
+impl<S: SquareTy, B: BoardTy, MoverC: ColorEn, ML: MoveListTy> RunPMovesForSq<B, MoverC, ML> for S
 where
     B: RunIdxBoard<S>,
-    S: RunPMovesForTypeAtSq<B, MoverC, IdxBoard<B, S>>,
+    S: RunPMovesForTypeAtSq<B, MoverC, IdxBoard<B, S>, ML>,
 {
-    type Output = <S as RunPMovesForTypeAtSq<B, MoverC, IdxBoard<B, S>>>::Output;
+    type Output = <S as RunPMovesForTypeAtSq<B, MoverC, IdxBoard<B, S>, ML>>::Output;
 }
 
-pub(crate) trait RunPMovesForTypeAtSq<B: BoardTy, MoverC: ColorEn, Type: CellEn>:
+pub(crate) trait RunPMovesForTypeAtSq<B: BoardTy, MoverC: ColorEn, Type: CellEn, ML: MoveListTy>:
     SquareTy
 {
     type Output: MoveListTy;
 }
 
-impl<S: SquareTy, B: BoardTy, MoverC: ColorEn> RunPMovesForTypeAtSq<B, MoverC, Empty> for S {
-    type Output = MLNil;
+impl<S: SquareTy, B: BoardTy, MoverC: ColorEn, ML: MoveListTy> RunPMovesForTypeAtSq<B, MoverC, Empty, ML> for S {
+    type Output = ML;
 }
-impl<S: SquareTy, B: BoardTy, P: PieceEn>
-    RunPMovesForTypeAtSq<B, White, Filled<ColoredPiece<P, Black>>> for S
+impl<S: SquareTy, B: BoardTy, P: PieceEn, ML: MoveListTy>
+    RunPMovesForTypeAtSq<B, White, Filled<ColoredPiece<P, Black>>, ML> for S
 {
-    type Output = MLNil;
+    type Output = ML;
 }
-impl<S: SquareTy, B: BoardTy, P: PieceEn>
-    RunPMovesForTypeAtSq<B, Black, Filled<ColoredPiece<P, White>>> for S
+impl<S: SquareTy, B: BoardTy, P: PieceEn, ML: MoveListTy>
+    RunPMovesForTypeAtSq<B, Black, Filled<ColoredPiece<P, White>>, ML> for S
 {
-    type Output = MLNil;
+    type Output = ML;
 }
-impl<S: SquareTy, B: BoardTy, C: ColorEn>
-    RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<Knight, C>>> for S
+impl<S: SquareTy, B: BoardTy, C: ColorEn, ML: MoveListTy>
+    RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<Knight, C>>, ML> for S
 where
     S: RunKnightMoveSqs,
-    KnightMoveSqs<S>: RunPMoveLFromSqs<B, S, C, Knight>,
+    KnightMoveSqs<S>: RunPMoveLFromSqs<B, S, C, Knight, ML>,
 {
-    type Output = PMoveLFromSqs<KnightMoveSqs<S>, B, S, C, Knight>;
+    type Output = PMoveLFromSqs<KnightMoveSqs<S>, B, S, C, Knight, ML>;
 }
-impl<S: SquareTy, B: BoardTy, C: ColorEn> RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<King, C>>>
+impl<S: SquareTy, B: BoardTy, C: ColorEn, ML: MoveListTy> RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<King, C>>, ML>
     for S
 where
     S: RunKingMoveSqs,
-    KingMoveSqs<S>: RunPMoveLFromSqs<B, S, C, King>,
+    KingMoveSqs<S>: RunPMoveLFromSqs<B, S, C, King, ML>,
 {
-    type Output = PMoveLFromSqs<KingMoveSqs<S>, B, S, C, King>;
+    type Output = PMoveLFromSqs<KingMoveSqs<S>, B, S, C, King, ML>;
 }
-impl<S: SquareTy, B: BoardTy, C: ColorEn> RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<Rook, C>>>
+impl<S: SquareTy, B: BoardTy, C: ColorEn, ML: MoveListTy> RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<Rook, C>>, ML>
     for S
 where
     S: RunRookMoveSqs<B>,
-    RookMoveSqs<S, B>: RunPMoveLFromSqs<B, S, C, Rook>,
+    RookMoveSqs<S, B>: RunPMoveLFromSqs<B, S, C, Rook, ML>,
 {
-    type Output = PMoveLFromSqs<RookMoveSqs<S, B>, B, S, C, Rook>;
+    type Output = PMoveLFromSqs<RookMoveSqs<S, B>, B, S, C, Rook, ML>;
 }
-impl<S: SquareTy, B: BoardTy, C: ColorEn>
-    RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<Bishop, C>>> for S
+impl<S: SquareTy, B: BoardTy, C: ColorEn, ML: MoveListTy>
+    RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<Bishop, C>>, ML> for S
 where
     S: RunBishopMoveSqs<B>,
-    BishopMoveSqs<S, B>: RunPMoveLFromSqs<B, S, C, Bishop>,
+    BishopMoveSqs<S, B>: RunPMoveLFromSqs<B, S, C, Bishop, ML>,
 {
-    type Output = PMoveLFromSqs<BishopMoveSqs<S, B>, B, S, C, Bishop>;
+    type Output = PMoveLFromSqs<BishopMoveSqs<S, B>, B, S, C, Bishop, ML>;
 }
-impl<S: SquareTy, B: BoardTy, C: ColorEn> RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<Queen, C>>>
+impl<S: SquareTy, B: BoardTy, C: ColorEn, ML: MoveListTy> RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<Queen, C>>, ML>
     for S
 where
     S: RunQueenMoveSqs<B>,
-    QueenMoveSqs<S, B>: RunPMoveLFromSqs<B, S, C, Queen>,
+    QueenMoveSqs<S, B>: RunPMoveLFromSqs<B, S, C, Queen, ML>,
 {
-    type Output = PMoveLFromSqs<QueenMoveSqs<S, B>, B, S, C, Queen>;
+    type Output = PMoveLFromSqs<QueenMoveSqs<S, B>, B, S, C, Queen, ML>;
 }
-impl<S: SquareTy, B: BoardTy, C: ColorEn> RunPMovesForTypeAtSq<B, C, Filled<ColoredPiece<Pawn, C>>>
+impl<S: SquareTy, B: BoardTy, ML: MoveListTy> RunPMovesForTypeAtSq<B, White, Filled<ColoredPiece<Pawn, White>>, ML>
     for S
 where
-    S: RunPawnMoves<B>,
+    S: RunPawnMoves<B, White, ML>,
 {
-    type Output = PawnMoves<S, B>;
+    type Output = PawnMoves<S, B, White, ML>;
+}
+impl<S: SquareTy, B: BoardTy, ML: MoveListTy> RunPMovesForTypeAtSq<B, Black, Filled<ColoredPiece<Pawn, Black>>, ML>
+    for S
+where
+    S: RunPawnMoves<B, Black, ML>,
+{
+    type Output = PawnMoves<S, B, Black, ML>;
 }
 
 pub(crate) trait RunPMoves<MoverC: ColorEn>: BoardTy {
@@ -122,9 +131,8 @@ impl<B: BoardTy, MoverC: ColorEn> RunPMovesForSqL<SLNil, MoverC> for B {
 impl<B: BoardTy, MoverC: ColorEn, S: SquareTy, Next: SquareListTy>
     RunPMovesForSqL<SLCons<S, Next>, MoverC> for B
 where
-    S: RunPMovesForSq<B, MoverC>,
+    S: RunPMovesForSq<B, MoverC, PMovesForSqL<B, Next, MoverC>>,
     B: RunPMovesForSqL<Next, MoverC>,
-    PMovesForSq<S, B, MoverC>: RunConcatML<PMovesForSqL<B, Next, MoverC>>
 {
-    type Output = ConcatML<PMovesForSq<S, B, MoverC>, PMovesForSqL<B, Next, MoverC>> ;
+    type Output = PMovesForSq<S, B, MoverC, PMovesForSqL<B, Next, MoverC>>;
 }
