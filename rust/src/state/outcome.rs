@@ -16,7 +16,7 @@ use crate::{
     values,
 };
 
-use super::{State, StateTy};
+use super::{CastleStateTy, State, StateTy};
 
 pub(crate) trait OutcomeEn {
     fn reify() -> values::Outcome;
@@ -46,19 +46,21 @@ pub(crate) trait RunOutcome: StateTy {
 }
 pub(crate) type Outcome<S> = <S as RunOutcome>::Output;
 
-impl<B: BoardTy, EP: MaybeSquare> RunOutcome for State<White, B, EP>
+impl<B: BoardTy, EP: MaybeSquare, CA: CastleStateTy> RunOutcome for State<White, B, EP, CA>
 where
-    State<White, B, EP>: RunMoves,
-    State<White, B, EP>: RunOutcomeWML<Moves<State<White, B, EP>>, Black>,
+    State<White, B, EP, CA>: RunMoves,
+    State<White, B, EP, CA>: RunOutcomeWML<Moves<State<White, B, EP, CA>>, Black>,
 {
-    type Output = <State<White, B, EP> as RunOutcomeWML<Moves<State<White, B, EP>>, Black>>::Output;
+    type Output =
+        <State<White, B, EP, CA> as RunOutcomeWML<Moves<State<White, B, EP, CA>>, Black>>::Output;
 }
-impl<B: BoardTy, EP: MaybeSquare> RunOutcome for State<Black, B, EP>
+impl<B: BoardTy, EP: MaybeSquare, CA: CastleStateTy> RunOutcome for State<Black, B, EP, CA>
 where
-    State<Black, B, EP>: RunMoves,
-    State<Black, B, EP>: RunOutcomeWML<Moves<State<Black, B, EP>>, White>,
+    State<Black, B, EP, CA>: RunMoves,
+    State<Black, B, EP, CA>: RunOutcomeWML<Moves<State<Black, B, EP, CA>>, White>,
 {
-    type Output = <State<Black, B, EP> as RunOutcomeWML<Moves<State<Black, B, EP>>, White>>::Output;
+    type Output =
+        <State<Black, B, EP, CA> as RunOutcomeWML<Moves<State<Black, B, EP, CA>>, White>>::Output;
 }
 
 pub(crate) trait RunOutcomeWML<ML: MoveListTy, MoverC: ColorEn>: StateTy {
@@ -85,9 +87,13 @@ pub(crate) trait RunOutcomeWIsCheck<C: Bool>: StateTy {
 impl<S: StateTy> RunOutcomeWIsCheck<False> for S {
     type Output = Draw;
 }
-impl<B: BoardTy, EP: MaybeSquare> RunOutcomeWIsCheck<True> for State<White, B, EP> {
+impl<B: BoardTy, EP: MaybeSquare, CA: CastleStateTy> RunOutcomeWIsCheck<True>
+    for State<White, B, EP, CA>
+{
     type Output = Checkmate<Black>;
 }
-impl<B: BoardTy, EP: MaybeSquare> RunOutcomeWIsCheck<True> for State<Black, B, EP> {
+impl<B: BoardTy, EP: MaybeSquare, CA: CastleStateTy> RunOutcomeWIsCheck<True>
+    for State<Black, B, EP, CA>
+{
     type Output = Checkmate<White>;
 }

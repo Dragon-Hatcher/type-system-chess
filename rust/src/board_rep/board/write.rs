@@ -1,5 +1,6 @@
 use crate::board_rep::square::{
     file::{self, FileEn},
+    offset::{MaybeSquare, NoSquare, SomeSquare},
     rank, Square, SquareTy,
 };
 
@@ -263,4 +264,19 @@ where
     R8: RunWriteToBoardRank<F, C>,
 {
     type Output = Board<R1, R2, R3, R4, R5, R6, R7, WriteToBoardRank<R8, F, C>>;
+}
+
+pub(crate) trait RunMaybeWriteToBoard<S: MaybeSquare, C: CellEn>: BoardTy {
+    type Output: BoardTy;
+}
+pub(crate) type MaybeWriteToBoard<B, S, C> = <B as RunMaybeWriteToBoard<S, C>>::Output;
+
+impl<B: BoardTy, C: CellEn> RunMaybeWriteToBoard<NoSquare, C> for B {
+    type Output = B;
+}
+impl<B: BoardTy, S: SquareTy, C: CellEn> RunMaybeWriteToBoard<SomeSquare<S>, C> for B
+where
+    B: RunWriteToBoard<S, C>,
+{
+    type Output = WriteToBoard<B, S, C>;
 }

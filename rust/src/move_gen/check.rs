@@ -16,7 +16,7 @@ use crate::{
             AllSqs, SquareTy,
         },
     },
-    state::{State, StateTy},
+    state::{CastleStateTy, State, StateTy},
     util::{Bool, False, Or, RunOr, True},
 };
 
@@ -25,8 +25,8 @@ pub(crate) trait RunIsCheck<MoverC: ColorEn>: StateTy {
 }
 pub(crate) type IsCheck<S, MoverC> = <S as RunIsCheck<MoverC>>::Output;
 
-impl<B: BoardTy, MoverC: ColorEn, C: ColorEn, EP: MaybeSquare> RunIsCheck<MoverC>
-    for State<C, B, EP>
+impl<B: BoardTy, MoverC: ColorEn, C: ColorEn, EP: MaybeSquare, CA: CastleStateTy> RunIsCheck<MoverC>
+    for State<C, B, EP, CA>
 where
     B: RunAttacked<MoverC>,
     B: RunSqLIsCheck<Attacked<B, MoverC>, MoverC, AllSqs>,

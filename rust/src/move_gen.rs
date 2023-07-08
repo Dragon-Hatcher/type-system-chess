@@ -13,6 +13,7 @@ use std::marker::PhantomData;
 pub mod attacked;
 pub mod bishop;
 pub mod cast;
+pub mod castle;
 pub mod check;
 pub mod king;
 pub mod knight;
@@ -27,9 +28,14 @@ pub mod rook;
 pub(crate) trait MoveTy {
     fn reify() -> values::Move;
 }
-pub(crate) struct Move<From: SquareTy, To: SquareTy, P: ColoredPieceTy, EP: MaybeSquare = NoSquare>(
-    PhantomData<(From, To, P, EP)>,
-);
+pub(crate) struct Move<
+    From: SquareTy,
+    To: SquareTy,
+    P: ColoredPieceTy,
+    EP: MaybeSquare = NoSquare,
+    RFrom: MaybeSquare = NoSquare,
+    RTo: MaybeSquare = NoSquare,
+>(PhantomData<(From, To, P, EP, RFrom, RTo)>);
 
 pub(crate) trait MaybeMove {
     fn reify() -> Option<values::Move>;
@@ -48,8 +54,14 @@ impl<M: MoveTy> MaybeMove for SomeMove<M> {
     }
 }
 
-impl<From: SquareTy, To: SquareTy, P: ColoredPieceTy, EP: MaybeSquare> MoveTy
-    for Move<From, To, P, EP>
+impl<
+        From: SquareTy,
+        To: SquareTy,
+        P: ColoredPieceTy,
+        EP: MaybeSquare,
+        RFrom: MaybeSquare,
+        RTo: MaybeSquare,
+    > MoveTy for Move<From, To, P, EP, RFrom, RTo>
 {
     fn reify() -> values::Move {
         values::Move {
@@ -57,6 +69,8 @@ impl<From: SquareTy, To: SquareTy, P: ColoredPieceTy, EP: MaybeSquare> MoveTy
             to: To::reify(),
             piece: P::reify(),
             ep: EP::reify(),
+            rook_from: RFrom::reify(),
+            rook_to: RTo::reify(),
         }
     }
 }

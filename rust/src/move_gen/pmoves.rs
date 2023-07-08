@@ -126,6 +126,7 @@ impl<B: BoardTy, MoverC: ColorEn, EP: MaybeSquare> RunPMoves<MoverC, EP> for B
 where
     B: RunPMovesForSqL<AllSqs, MoverC, EP>,
 {
+    // TODO castle
     type Output = <B as RunPMovesForSqL<AllSqs, MoverC, EP>>::Output;
 }
 

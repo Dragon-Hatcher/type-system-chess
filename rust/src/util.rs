@@ -51,6 +51,18 @@ impl RunAnd<False> for False {
     type Output = False;
 }
 
+pub(crate) trait RunNot: Bool {
+    type Output: Bool;
+}
+pub(crate) type Not<B> = <B as RunNot>::Output;
+
+impl RunNot for True {
+    type Output = False;
+}
+impl RunNot for False {
+    type Output = True;
+}
+
 pub mod board_creator {
     #![allow(unused)]
 

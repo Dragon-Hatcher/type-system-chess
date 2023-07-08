@@ -9,7 +9,7 @@ use crate::{
         },
     },
     move_gen::{list::MoveListTy, moves::Moves},
-    state::State,
+    state::{EmptyCa, FullCa, State},
     util::board_creator::*,
     values,
 };
@@ -27,10 +27,29 @@ fn test_start_pos_mc() {
         BoardRank<BP, BP, BP, BP, BP, BP, BP, BP>, // 7
         BoardRank<BR, BN, BB, BQ, BK, BB, BN, BR>, // 8
     >;
-    type S = State<White, B, NoSquare>;
+    type S = State<White, B, NoSquare, FullCa>;
     type Ms = Moves<S>;
 
     assert_eq!(Ms::reify().0.len(), 20);
+}
+
+#[test]
+fn test_pos_2_mc() {
+    type B = Board<
+        //        AA  BB  CC  DD  EE  FF  GG  HH
+        BoardRank<WR, __, __, __, WK, __, __, WR>, // 1
+        BoardRank<WP, WP, WP, WB, WB, WP, WP, WP>, // 2
+        BoardRank<__, __, WN, __, __, WQ, __, BP>, // 3
+        BoardRank<__, BP, __, __, WP, __, __, __>, // 4
+        BoardRank<__, __, __, WP, WN, __, __, __>, // 5
+        BoardRank<BB, BN, __, __, BP, BN, BP, __>, // 6
+        BoardRank<BP, __, BP, BP, BQ, BP, BB, __>, // 7
+        BoardRank<BR, __, __, __, BK, __, __, BR>, // 8
+    >;
+    type S = State<White, B, NoSquare, FullCa>;
+    type Ms = Moves<S>;
+
+    assert_eq!(Ms::reify().0.len(), 48);
 }
 
 #[test]
@@ -46,7 +65,7 @@ fn test_pos_3_mc() {
         BoardRank<__, __, BP, __, __, __, __, __>, // 7
         BoardRank<__, __, __, __, __, __, __, __>, // 8
     >;
-    type S = State<White, B, NoSquare>;
+    type S = State<White, B, NoSquare, EmptyCa>;
     type Ms = Moves<S>;
 
     assert_eq!(Ms::reify().0.len(), 14);
@@ -66,7 +85,7 @@ fn test_ep_mc() {
         BoardRank<BR, BN, BB, BQ, BK, BB, BN, BR>, // 8
     >;
     type EP = Square<rank::R6, file::FD>;
-    type S = State<White, B, SomeSquare<EP>>;
+    type S = State<White, B, SomeSquare<EP>, FullCa>;
     type Ms = Moves<S>;
 
     let ms = Ms::reify().0;

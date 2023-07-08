@@ -8,7 +8,7 @@ use crate::{
         square::offset::NoSquare,
     },
     move_gen::{list::MoveListTy, moves::Moves},
-    state::State,
+    state::{EmptyCa, State},
 };
 use util::board_creator::*;
 
@@ -33,7 +33,7 @@ type B = Board<
 >;
 
 fn main() {
-    type M = Moves<State<White, B, NoSquare>>;
+    type M = Moves<State<White, B, NoSquare, EmptyCa>>;
 
     println!("Board:\n{}", B::reify());
     println!("Moves:\n{}", M::reify().destinations());

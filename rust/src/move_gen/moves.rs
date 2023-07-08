@@ -4,7 +4,7 @@ use crate::{
         color::{Black, ColorEn, White},
         square::offset::MaybeSquare,
     },
-    state::{MakeMove, RunMakeMove, State, StateTy},
+    state::{CastleStateTy, MakeMove, RunMakeMove, State, StateTy},
     util::{Bool, False, True},
 };
 
@@ -20,12 +20,13 @@ pub(crate) trait RunMoves: StateTy {
 }
 pub(crate) type Moves<S> = <S as RunMoves>::Output;
 
-impl<B: BoardTy, MoverC: ColorEn, EP: MaybeSquare> RunMoves for State<MoverC, B, EP>
+impl<B: BoardTy, MoverC: ColorEn, EP: MaybeSquare, CA: CastleStateTy> RunMoves
+    for State<MoverC, B, EP, CA>
 where
     B: RunPMoves<MoverC, EP>,
-    PMoves<B, MoverC, EP>: RunMsFromPMs<MLNil, State<MoverC, B, EP>, MoverC>,
+    PMoves<B, MoverC, EP>: RunMsFromPMs<MLNil, State<MoverC, B, EP, CA>, MoverC>,
 {
-    type Output = MsFromPMs<PMoves<B, MoverC, EP>, MLNil, State<MoverC, B, EP>, MoverC>;
+    type Output = MsFromPMs<PMoves<B, MoverC, EP>, MLNil, State<MoverC, B, EP, CA>, MoverC>;
 }
 
 pub(crate) trait RunMsFromPMs<ML: MoveListTy, S: StateTy, MoverC: ColorEn>:

@@ -283,10 +283,19 @@ impl Display for SquareSet {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct CastleState {
+    pub(crate) wk: bool,
+    pub(crate) wq: bool,
+    pub(crate) bk: bool,
+    pub(crate) bq: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct State {
     pub(crate) to_move: Color,
     pub(crate) pieces: Board,
     pub(crate) ep_square: Option<Square>,
+    pub(crate) castle_state: CastleState,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -295,6 +304,8 @@ pub(crate) struct Move {
     pub(crate) to: Square,
     pub(crate) piece: ColoredPiece,
     pub(crate) ep: Option<Square>,
+    pub(crate) rook_from: Option<Square>,
+    pub(crate) rook_to: Option<Square>,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct MoveList(pub Vec<Move>);
