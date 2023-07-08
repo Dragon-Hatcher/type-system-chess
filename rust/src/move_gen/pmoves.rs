@@ -1,18 +1,22 @@
-use crate::board_rep::{
-    board::{
-        idx::{IdxBoard, RunIdxBoard},
-        BoardTy, CellEn, Empty, Filled,
+use crate::{
+    board_rep::{
+        board::{
+            idx::{IdxBoard, RunIdxBoard},
+            BoardTy, CellEn, Empty, Filled,
+        },
+        color::{Black, ColorEn, White},
+        piece::{Bishop, ColoredPiece, King, Knight, Pawn, PieceEn, Queen, Rook},
+        square::{offset::MaybeSquare, AllSqs, SquareTy},
     },
-    color::{Black, ColorEn, White},
-    piece::{Bishop, ColoredPiece, King, Knight, Pawn, PieceEn, Queen, Rook},
-    square::{offset::MaybeSquare, AllSqs, SquareTy},
+    util::Bool,
 };
 
 use super::{
     bishop::{BishopMoveSqs, RunBishopMoveSqs},
+    castle::{KingsideCastle, QueensideCastle, RunKingsideCastle, RunQueensideCastle},
     king::{KingMoveSqs, RunKingMoveSqs},
     knight::{KnightMoveSqs, RunKnightMoveSqs},
-    list::{MLNil, MoveListTy, SLCons, SLNil, SquareListTy},
+    list::{AppendMaybeMove, MLNil, MoveListTy, RunAppendMaybeMove, SLCons, SLNil, SquareListTy},
     ml_from_sl::{PMoveLFromSqs, RunPMoveLFromSqs},
     pawn::{PawnMoves, RunPawnMoves},
     queen::{QueenMoveSqs, RunQueenMoveSqs},
@@ -117,17 +121,34 @@ where
     type Output = PawnMoves<S, B, Black, EP, ML>;
 }
 
-pub(crate) trait RunPMoves<MoverC: ColorEn, EP: MaybeSquare>: BoardTy {
+pub(crate) trait RunPMoves<MoverC: ColorEn, EP: MaybeSquare, WK: Bool, WQ: Bool, BK: Bool, BQ: Bool>:
+    BoardTy
+{
     type Output: MoveListTy;
 }
-pub(crate) type PMoves<B, MoverC, EP> = <B as RunPMoves<MoverC, EP>>::Output;
+pub(crate) type PMoves<B, MoverC, EP, WK, WQ, BK, BQ> =
+    <B as RunPMoves<MoverC, EP, WK, WQ, BK, BQ>>::Output;
 
-impl<B: BoardTy, MoverC: ColorEn, EP: MaybeSquare> RunPMoves<MoverC, EP> for B
+impl<B: BoardTy, MoverC: ColorEn, EP: MaybeSquare, WK: Bool, WQ: Bool, BK: Bool, BQ: Bool>
+    RunPMoves<MoverC, EP, WK, WQ, BK, BQ> for B
 where
     B: RunPMovesForSqL<AllSqs, MoverC, EP>,
+    B: RunKingsideCastle<MoverC, WK, BK>,
+    B: RunQueensideCastle<MoverC, WK, BK>,
+    <B as RunPMovesForSqL<AllSqs, MoverC, EP>>::Output:
+        RunAppendMaybeMove<KingsideCastle<B, MoverC, WK, BK>>,
+    AppendMaybeMove<
+        <B as RunPMovesForSqL<AllSqs, MoverC, EP>>::Output,
+        KingsideCastle<B, MoverC, WK, BK>,
+    >: RunAppendMaybeMove<QueensideCastle<B, MoverC, WK, BK>>,
 {
-    // TODO castle
-    type Output = <B as RunPMovesForSqL<AllSqs, MoverC, EP>>::Output;
+    type Output = AppendMaybeMove<
+        AppendMaybeMove<
+            <B as RunPMovesForSqL<AllSqs, MoverC, EP>>::Output,
+            KingsideCastle<B, MoverC, WK, BK>,
+        >,
+        QueensideCastle<B, MoverC, WK, BK>,
+    >;
 }
 
 pub(crate) trait RunPMovesForSqL<L: SquareListTy, MoverC: ColorEn, EP: MaybeSquare>:
