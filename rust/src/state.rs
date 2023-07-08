@@ -39,6 +39,8 @@ pub(crate) struct CastleState<WK: Bool, WQ: Bool, BK: Bool, BQ: Bool>(
 
 pub(crate) type FullCa = CastleState<True, True, True, True>;
 pub(crate) type EmptyCa = CastleState<False, False, False, False>;
+pub(crate) type WhiteCa = CastleState<True, True, False, False>;
+pub(crate) type BlackCa = CastleState<False, False, True, True>;
 
 impl<WK: Bool, WQ: Bool, BK: Bool, BQ: Bool> CastleStateTy for CastleState<WK, WQ, BK, BQ> {
     fn reify() -> values::CastleState {
