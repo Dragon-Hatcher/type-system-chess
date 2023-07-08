@@ -22,31 +22,26 @@ impl PieceEn for Bishop {
     fn reify() -> values::Piece {
         values::Piece::Bishop
     }
-
 }
 impl PieceEn for Knight {
     fn reify() -> values::Piece {
         values::Piece::Knight
     }
-
 }
 impl PieceEn for Rook {
     fn reify() -> values::Piece {
         values::Piece::Rook
     }
-
 }
 impl PieceEn for Queen {
     fn reify() -> values::Piece {
         values::Piece::Queen
     }
-
 }
 impl PieceEn for King {
     fn reify() -> values::Piece {
         values::Piece::King
     }
-
 }
 
 pub(crate) trait ColoredPieceTy {
@@ -56,6 +51,9 @@ pub(crate) struct ColoredPiece<P: PieceEn, C: ColorEn>(PhantomData<(P, C)>);
 
 impl<P: PieceEn, C: ColorEn> ColoredPieceTy for ColoredPiece<P, C> {
     fn reify() -> values::ColoredPiece {
-        values::ColoredPiece { piece: P::reify(), color: C::reify() }
+        values::ColoredPiece {
+            piece: P::reify(),
+            color: C::reify(),
+        }
     }
 }

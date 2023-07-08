@@ -2,6 +2,7 @@ use crate::{
     board_rep::{
         board::BoardTy,
         color::{Black, ColorEn, White},
+        square::offset::MaybeSquare,
     },
     state::{MakeMove, RunMakeMove, State, StateTy},
     util::{Bool, False, True},
@@ -19,12 +20,12 @@ pub(crate) trait RunMoves: StateTy {
 }
 pub(crate) type Moves<S> = <S as RunMoves>::Output;
 
-impl<B: BoardTy, MoverC: ColorEn> RunMoves for State<MoverC, B>
+impl<B: BoardTy, MoverC: ColorEn, EP: MaybeSquare> RunMoves for State<MoverC, B, EP>
 where
-    B: RunPMoves<MoverC>,
-    PMoves<B, MoverC>: RunMsFromPMs<MLNil, State<MoverC, B>, MoverC>,
+    B: RunPMoves<MoverC, EP>,
+    PMoves<B, MoverC, EP>: RunMsFromPMs<MLNil, State<MoverC, B, EP>, MoverC>,
 {
-    type Output = MsFromPMs<PMoves<B, MoverC>, MLNil, State<MoverC, B>, MoverC>;
+    type Output = MsFromPMs<PMoves<B, MoverC, EP>, MLNil, State<MoverC, B, EP>, MoverC>;
 }
 
 pub(crate) trait RunMsFromPMs<ML: MoveListTy, S: StateTy, MoverC: ColorEn>:

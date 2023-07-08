@@ -2,6 +2,7 @@ use crate::{
     board_rep::{
         board::{Board, BoardRank},
         color::{Black, White},
+        square::offset::NoSquare,
     },
     state::{
         outcome::{Outcome, OutcomeEn},
@@ -24,7 +25,7 @@ fn test_ongoing() {
         BoardRank<BP, BP, BP, BP, BP, __, __, BP>, // 7
         BoardRank<BR, BN, BB, BQ, BK, BB, BN, BR>, // 8
     >;
-    type S = State<White, B>;
+    type S = State<White, B, NoSquare>;
     type O = Outcome<S>;
 
     assert_eq!(O::reify(), values::Outcome::Ongoing);
@@ -43,7 +44,7 @@ fn test_stalemate() {
         BoardRank<__, __, __, __, __, __, __, __>, // 7
         BoardRank<BK, __, __, __, __, __, __, __>, // 8
     >;
-    type S = State<Black, B>;
+    type S = State<Black, B, NoSquare>;
     type O = Outcome<S>;
 
     assert_eq!(O::reify(), values::Outcome::Draw);
@@ -62,7 +63,7 @@ fn test_checkmate() {
         BoardRank<BP, BP, BP, BP, BP, __, __, BP>, // 7
         BoardRank<BR, BN, BB, BQ, BK, BB, BN, BR>, // 8
     >;
-    type S = State<Black, B>;
+    type S = State<Black, B, NoSquare>;
     type O = Outcome<S>;
 
     assert_eq!(O::reify(), values::Outcome::Checkmate(values::Color::White));

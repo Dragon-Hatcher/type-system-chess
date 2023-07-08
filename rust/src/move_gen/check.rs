@@ -11,11 +11,13 @@ use crate::{
         color::{Black, ColorEn, White},
         piece::{Bishop, ColoredPiece, King, Knight, Pawn, PieceEn, Queen, Rook},
         square::{
+            offset::MaybeSquare,
             set::{IsOccupied, RunIsOccupied, SquareSetTy},
             AllSqs, SquareTy,
         },
     },
-    util::{Bool, False, Or, RunOr, True}, state::{StateTy, State}
+    state::{State, StateTy},
+    util::{Bool, False, Or, RunOr, True},
 };
 
 pub(crate) trait RunIsCheck<MoverC: ColorEn>: StateTy {
@@ -23,7 +25,8 @@ pub(crate) trait RunIsCheck<MoverC: ColorEn>: StateTy {
 }
 pub(crate) type IsCheck<S, MoverC> = <S as RunIsCheck<MoverC>>::Output;
 
-impl<B: BoardTy, MoverC: ColorEn, C: ColorEn> RunIsCheck<MoverC> for State<C, B>
+impl<B: BoardTy, MoverC: ColorEn, C: ColorEn, EP: MaybeSquare> RunIsCheck<MoverC>
+    for State<C, B, EP>
 where
     B: RunAttacked<MoverC>,
     B: RunSqLIsCheck<Attacked<B, MoverC>, MoverC, AllSqs>,

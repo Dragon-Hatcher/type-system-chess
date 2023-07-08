@@ -14,7 +14,10 @@ use crate::board_rep::{
     },
     color::{Black, ColorEn, White},
     piece::{Bishop, ColoredPiece, King, Knight, Pawn, PieceEn, Queen, Rook},
-    square::{AllSqs, SquareTy, set::{SquareSetTy, EmptySS, AddToSSFromL, RunAddToSSFromL}},
+    square::{
+        set::{AddToSSFromL, EmptySS, RunAddToSSFromL, SquareSetTy},
+        AllSqs, SquareTy,
+    },
 };
 
 pub(crate) trait RunAttacked<MoverC: ColorEn>: BoardTy {

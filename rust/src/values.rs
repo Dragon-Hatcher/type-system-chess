@@ -286,6 +286,7 @@ impl Display for SquareSet {
 pub(crate) struct State {
     pub(crate) to_move: Color,
     pub(crate) pieces: Board,
+    pub(crate) ep_square: Option<Square>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -293,6 +294,7 @@ pub(crate) struct Move {
     pub(crate) from: Square,
     pub(crate) to: Square,
     pub(crate) piece: ColoredPiece,
+    pub(crate) ep: Option<Square>,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct MoveList(pub Vec<Move>);
@@ -312,5 +314,5 @@ pub(crate) struct Offset {
 pub(crate) enum Outcome {
     Ongoing,
     Draw,
-    Checkmate(Color)
+    Checkmate(Color),
 }

@@ -1,5 +1,11 @@
 use crate::{
-    board_rep::{piece::ColoredPieceTy, square::SquareTy},
+    board_rep::{
+        piece::ColoredPieceTy,
+        square::{
+            offset::{MaybeSquare, NoSquare},
+            SquareTy,
+        },
+    },
     values,
 };
 use std::marker::PhantomData;
@@ -21,7 +27,9 @@ pub mod rook;
 pub(crate) trait MoveTy {
     fn reify() -> values::Move;
 }
-pub(crate) struct Move<From: SquareTy, To: SquareTy, P: ColoredPieceTy>(PhantomData<(From, To, P)>);
+pub(crate) struct Move<From: SquareTy, To: SquareTy, P: ColoredPieceTy, EP: MaybeSquare = NoSquare>(
+    PhantomData<(From, To, P, EP)>,
+);
 
 pub(crate) trait MaybeMove {
     fn reify() -> Option<values::Move>;
@@ -40,12 +48,15 @@ impl<M: MoveTy> MaybeMove for SomeMove<M> {
     }
 }
 
-impl<From: SquareTy, To: SquareTy, P: ColoredPieceTy> MoveTy for Move<From, To, P> {
+impl<From: SquareTy, To: SquareTy, P: ColoredPieceTy, EP: MaybeSquare> MoveTy
+    for Move<From, To, P, EP>
+{
     fn reify() -> values::Move {
         values::Move {
             from: From::reify(),
             to: To::reify(),
             piece: P::reify(),
+            ep: EP::reify(),
         }
     }
 }

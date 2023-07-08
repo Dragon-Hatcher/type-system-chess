@@ -1,5 +1,5 @@
+use super::piece::ColoredPieceTy;
 use crate::values;
-use super::{piece::ColoredPieceTy};
 use std::marker::PhantomData;
 
 pub mod idx;

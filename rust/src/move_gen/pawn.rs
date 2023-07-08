@@ -1,26 +1,29 @@
 use super::{
     list::{
-        AppendMaybeSquare, MLCons, MoveListTy, RunAppendMaybeSquare, SLCons, SLNil,
-        SquareListTy,
+        AppendMaybeMove, AppendMaybeSquare, MLCons, MoveListTy, RunAppendMaybeMove,
+        RunAppendMaybeSquare, SLCons, SLNil, SquareListTy,
     },
-    Move,
+    MaybeMove, Move, NoMove, SomeMove,
 };
-use crate::board_rep::{
-    board::{
-        idx::{IdxBoard, RunIdxBoard},
-        BoardTy, CellEn, Empty, Filled,
-    },
-    color::{Black, ColorEn, White},
-    piece::{Bishop, ColoredPiece, ColoredPieceTy, Knight, Pawn, PieceEn, Queen, Rook},
-    square::{
-        file::FileEn,
-        offset::{
-            MaybeSquare, Neg1, NoSquare, Offset, Offset1DEn, OffsetSquare, OffsetTy, Pos1,
-            RunOffsetSquare, SomeSquare, Zero,
+use crate::{
+    board_rep::{
+        board::{
+            idx::{IdxBoard, RunIdxBoard},
+            BoardTy, CellEn, Empty, Filled,
         },
-        rank::{self, RankEn},
-        Square, SquareTy,
+        color::{Black, ColorEn, White},
+        piece::{Bishop, ColoredPiece, ColoredPieceTy, Knight, Pawn, PieceEn, Queen, Rook},
+        square::{
+            file::FileEn,
+            offset::{
+                MaybeSquare, Neg1, NoSquare, Offset, Offset1DEn, OffsetSquare, OffsetTy, Pos1,
+                RunOffsetSquare, SomeSquare, Zero,
+            },
+            rank::{self, RankEn},
+            RunSquareEq, Square, SquareEq, SquareTy,
+        },
     },
+    util::{Bool, False, True},
 };
 
 pub(crate) trait RunForwardO<F: Offset1DEn>: ColorEn {
@@ -34,17 +37,33 @@ impl<F: Offset1DEn> RunForwardO<F> for Black {
     type Output = Offset<Neg1, F>;
 }
 
-pub(crate) trait RunPawnMoves<B: BoardTy, MoverC: ColorEn, ML: MoveListTy>: SquareTy {
+pub(crate) trait RunPawnMoves<B: BoardTy, MoverC: ColorEn, EP: MaybeSquare, ML: MoveListTy>:
+    SquareTy
+{
     type Output: MoveListTy;
 }
-pub(crate) type PawnMoves<S, B, MoverC, ML> = <S as RunPawnMoves<B, MoverC, ML>>::Output;
+pub(crate) type PawnMoves<S, B, MoverC, EP, ML> = <S as RunPawnMoves<B, MoverC, EP, ML>>::Output;
 
-impl<S: SquareTy, B: BoardTy, MoverC: ColorEn, ML: MoveListTy> RunPawnMoves<B, MoverC, ML> for S
+impl<S: SquareTy, B: BoardTy, MoverC: ColorEn, EP: MaybeSquare, ML: MoveListTy>
+    RunPawnMoves<B, MoverC, EP, ML> for S
 where
     S: RunPawnMoveSqs<B, MoverC>,
+    S: RunMakeEPMove<MoverC, Pos1, EP> + RunMakeEPMove<MoverC, Neg1, EP>,
     PawnMoveSqs<S, B, MoverC>: RunPawnMlFromSL<B, S, MoverC, ML>,
+    PawnMLFromSl<PawnMoveSqs<S, B, MoverC>, B, S, MoverC, ML>:
+        RunAppendMaybeMove<MakeEPMove<S, MoverC, Pos1, EP>>,
+    AppendMaybeMove<
+        PawnMLFromSl<PawnMoveSqs<S, B, MoverC>, B, S, MoverC, ML>,
+        MakeEPMove<S, MoverC, Pos1, EP>,
+    >: RunAppendMaybeMove<MakeEPMove<S, MoverC, Neg1, EP>>,
 {
-    type Output = PawnMLFromSl<PawnMoveSqs<S, B, MoverC>, B, S, MoverC, ML>;
+    type Output = AppendMaybeMove<
+        AppendMaybeMove<
+            PawnMLFromSl<PawnMoveSqs<S, B, MoverC>, B, S, MoverC, ML>,
+            MakeEPMove<S, MoverC, Pos1, EP>,
+        >,
+        MakeEPMove<S, MoverC, Neg1, EP>,
+    >;
 }
 
 pub(crate) trait RunPawnMoveSqs<B: BoardTy, MoverC: ColorEn>: SquareTy {
@@ -55,7 +74,8 @@ pub(crate) type PawnMoveSqs<S, B, MoverC> = <S as RunPawnMoveSqs<B, MoverC>>::Ou
 type S1<B, MoverC, S> = Cap<OffsetSquare<S, ForwardO<MoverC, Neg1>>, B, MoverC>;
 type S2<B, MoverC, S> = Cap<OffsetSquare<S, ForwardO<MoverC, Pos1>>, B, MoverC>;
 type S3<B, MoverC, S> = Forward1<OffsetSquare<S, ForwardO<MoverC, Zero>>, B, MoverC>;
-type S4<B, MoverC, S> = Forward2<YesIfDoubleSq<S, OffsetSquare<S, ForwardO<MoverC, Zero>>>, B, MoverC>;
+type S4<B, MoverC, S> =
+    Forward2<YesIfDoubleSq<S, OffsetSquare<S, ForwardO<MoverC, Zero>>>, B, MoverC>;
 
 type L1<B, MoverC, S> = AppendMaybeSquare<SLNil, S1<B, MoverC, S>>;
 type L2<B, MoverC, S> = AppendMaybeSquare<L1<B, MoverC, S>, S2<B, MoverC, S>>;
@@ -133,6 +153,75 @@ where
 {
     type Output =
         YesIfEmpty<IdxBoard<B, S>, Forward1<OffsetSquare<S, ForwardO<MoverC, Zero>>, B, MoverC>>;
+}
+
+pub(crate) trait RunMakeEPMove<MoverC: ColorEn, FOff: Offset1DEn, EP: MaybeSquare>:
+    SquareTy
+{
+    type Output: MaybeMove;
+}
+pub(crate) type MakeEPMove<S, MoverC, FOff, EP> = <S as RunMakeEPMove<MoverC, FOff, EP>>::Output;
+
+impl<MoverC: ColorEn, FOff: Offset1DEn, S: SquareTy> RunMakeEPMove<MoverC, FOff, NoSquare> for S {
+    type Output = NoMove;
+}
+impl<MoverC: ColorEn, FOff: Offset1DEn, EPS: SquareTy, S: SquareTy>
+    RunMakeEPMove<MoverC, FOff, SomeSquare<EPS>> for S
+where
+    MoverC: RunForwardO<FOff>,
+    S: RunOffsetSquare<ForwardO<MoverC, FOff>>,
+    EPS: RunEp<OffsetSquare<S, ForwardO<MoverC, FOff>>>,
+    S: RunEpMove<MoverC, FOff, Ep<EPS, OffsetSquare<S, ForwardO<MoverC, FOff>>>>,
+{
+    type Output =
+        <S as RunEpMove<MoverC, FOff, Ep<EPS, OffsetSquare<S, ForwardO<MoverC, FOff>>>>>::Output;
+}
+
+pub(crate) trait RunEpMove<MoverC: ColorEn, FOff: Offset1DEn, End: MaybeSquare>:
+    SquareTy
+{
+    type Output: MaybeMove;
+}
+
+impl<MoverC: ColorEn, FOff: Offset1DEn, Start: SquareTy> RunEpMove<MoverC, FOff, NoSquare>
+    for Start
+{
+    type Output = NoMove;
+}
+impl<MoverC: ColorEn, FOff: Offset1DEn, Start: SquareTy, End: SquareTy>
+    RunEpMove<MoverC, FOff, SomeSquare<End>> for Start
+where
+    Start: RunOffsetSquare<Offset<Zero, FOff>>,
+{
+    type Output = SomeMove<
+        Move<Start, End, ColoredPiece<Pawn, MoverC>, OffsetSquare<Start, Offset<Zero, FOff>>>,
+    >;
+}
+
+pub(crate) trait RunEp<EP: MaybeSquare>: SquareTy {
+    type Output: MaybeSquare;
+}
+pub(crate) type Ep<S, EP> = <S as RunEp<EP>>::Output;
+
+impl<S: SquareTy> RunEp<NoSquare> for S {
+    type Output = NoSquare;
+}
+impl<S1: SquareTy, S2: SquareTy> RunEp<SomeSquare<S1>> for S2
+where
+    S1: RunSquareEq<S2>,
+    S1: RunEpWMatches<SquareEq<S1, S2>>,
+{
+    type Output = <S1 as RunEpWMatches<SquareEq<S1, S2>>>::Output;
+}
+
+pub(crate) trait RunEpWMatches<Matches: Bool>: SquareTy {
+    type Output: MaybeSquare;
+}
+impl<S: SquareTy> RunEpWMatches<True> for S {
+    type Output = SomeSquare<S>;
+}
+impl<S: SquareTy> RunEpWMatches<False> for S {
+    type Output = NoSquare;
 }
 
 pub(crate) trait RunYesIfDoubleSq<S: MaybeSquare>: SquareTy {

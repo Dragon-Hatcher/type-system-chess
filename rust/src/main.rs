@@ -5,6 +5,7 @@ use crate::{
     board_rep::{
         board::{Board, BoardRank, BoardTy},
         color::White,
+        square::offset::NoSquare,
     },
     move_gen::{list::MoveListTy, moves::Moves},
     state::State,
@@ -32,7 +33,7 @@ type B = Board<
 >;
 
 fn main() {
-    type M = Moves<State<White, B>>;
+    type M = Moves<State<White, B, NoSquare>>;
 
     println!("Board:\n{}", B::reify());
     println!("Moves:\n{}", M::reify().destinations());

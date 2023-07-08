@@ -5,7 +5,8 @@ use super::{
 };
 use crate::{
     move_gen::list::{SLCons, SLNil, SquareListTy},
-    values, util::{Bool, False, True},
+    util::{Bool, False, True},
+    values,
 };
 use std::marker::PhantomData;
 
@@ -246,16 +247,7 @@ where
     type Output = IdxSSRank<IdxSSforRank<SS, R>, F>;
 }
 
-pub(crate) type EmptySSRank = SquareSetRank<
-    False,
-    False,
-    False,
-    False,
-    False,
-    False,
-    False,
-    False,
->;
+pub(crate) type EmptySSRank = SquareSetRank<False, False, False, False, False, False, False, False>;
 pub(crate) type EmptySS = SquareSet<
     EmptySSRank,
     EmptySSRank,

@@ -4,6 +4,7 @@ use crate::{
     board_rep::{
         board::BoardTy,
         color::{Black, ColorEn, White},
+        square::offset::MaybeSquare,
     },
     move_gen::{
         check::{IsCheck, RunIsCheck},
@@ -45,19 +46,19 @@ pub(crate) trait RunOutcome: StateTy {
 }
 pub(crate) type Outcome<S> = <S as RunOutcome>::Output;
 
-impl<B: BoardTy> RunOutcome for State<White, B>
+impl<B: BoardTy, EP: MaybeSquare> RunOutcome for State<White, B, EP>
 where
-    State<White, B>: RunMoves,
-    State<White, B>: RunOutcomeWML<Moves<State<White, B>>, Black>,
+    State<White, B, EP>: RunMoves,
+    State<White, B, EP>: RunOutcomeWML<Moves<State<White, B, EP>>, Black>,
 {
-    type Output = <State<White, B> as RunOutcomeWML<Moves<State<White, B>>, Black>>::Output;
+    type Output = <State<White, B, EP> as RunOutcomeWML<Moves<State<White, B, EP>>, Black>>::Output;
 }
-impl<B: BoardTy> RunOutcome for State<Black, B>
+impl<B: BoardTy, EP: MaybeSquare> RunOutcome for State<Black, B, EP>
 where
-    State<Black, B>: RunMoves,
-    State<Black, B>: RunOutcomeWML<Moves<State<Black, B>>, White>,
+    State<Black, B, EP>: RunMoves,
+    State<Black, B, EP>: RunOutcomeWML<Moves<State<Black, B, EP>>, White>,
 {
-    type Output = <State<Black, B> as RunOutcomeWML<Moves<State<Black, B>>, White>>::Output;
+    type Output = <State<Black, B, EP> as RunOutcomeWML<Moves<State<Black, B, EP>>, White>>::Output;
 }
 
 pub(crate) trait RunOutcomeWML<ML: MoveListTy, MoverC: ColorEn>: StateTy {
@@ -84,9 +85,9 @@ pub(crate) trait RunOutcomeWIsCheck<C: Bool>: StateTy {
 impl<S: StateTy> RunOutcomeWIsCheck<False> for S {
     type Output = Draw;
 }
-impl<B: BoardTy> RunOutcomeWIsCheck<True> for State<White, B> {
+impl<B: BoardTy, EP: MaybeSquare> RunOutcomeWIsCheck<True> for State<White, B, EP> {
     type Output = Checkmate<Black>;
 }
-impl<B: BoardTy> RunOutcomeWIsCheck<True> for State<Black, B> {
+impl<B: BoardTy, EP: MaybeSquare> RunOutcomeWIsCheck<True> for State<Black, B, EP> {
     type Output = Checkmate<White>;
 }

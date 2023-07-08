@@ -33,10 +33,32 @@ impl RunOr<False> for False {
     type Output = False;
 }
 
+pub(crate) trait RunAnd<A: Bool>: Bool {
+    type Output: Bool;
+}
+pub(crate) type And<A, B> = <A as RunAnd<B>>::Output;
+
+impl RunAnd<True> for True {
+    type Output = True;
+}
+impl RunAnd<True> for False {
+    type Output = False;
+}
+impl RunAnd<False> for True {
+    type Output = False;
+}
+impl RunAnd<False> for False {
+    type Output = False;
+}
+
 pub mod board_creator {
     #![allow(unused)]
 
-    use crate::board_rep::{board::{Filled, Empty}, piece::{ColoredPiece, self}, color};
+    use crate::board_rep::{
+        board::{Empty, Filled},
+        color,
+        piece::{self, ColoredPiece},
+    };
 
     pub(crate) type WP = Filled<ColoredPiece<piece::Pawn, color::White>>;
     pub(crate) type WB = Filled<ColoredPiece<piece::Bishop, color::White>>;

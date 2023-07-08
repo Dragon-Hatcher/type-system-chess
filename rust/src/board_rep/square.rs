@@ -3,9 +3,13 @@ pub mod offset;
 pub mod rank;
 pub mod set;
 
-use self::{file::FileEn, rank::RankEn};
+use self::{
+    file::{FileEn, FileEq, RunFileEq},
+    rank::{RankEn, RankEq, RunRankEq},
+};
 use crate::{
     move_gen::list::{SLCons, SLNil},
+    util::{And, Bool, RunAnd},
     values,
 };
 use std::marker::PhantomData;
@@ -22,6 +26,20 @@ impl<R: RankEn, F: FileEn> SquareTy for Square<R, F> {
             file: F::reify(),
         }
     }
+}
+
+pub(crate) trait RunSquareEq<A: SquareTy>: SquareTy {
+    type Output: Bool;
+}
+pub(crate) type SquareEq<A, B> = <A as RunSquareEq<B>>::Output;
+
+impl<R1: RankEn, F1: FileEn, R2: RankEn, F2: FileEn> RunSquareEq<Square<R1, F1>> for Square<R2, F2>
+where
+    R1: RunRankEq<R2>,
+    F1: RunFileEq<F2>,
+    RankEq<R1, R2>: RunAnd<FileEq<F1, F2>>,
+{
+    type Output = And<RankEq<R1, R2>, FileEq<F1, F2>>;
 }
 
 // I can't think of a more elegant way to do this.
