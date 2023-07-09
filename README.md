@@ -58,7 +58,7 @@ As esoteric program languages go TS types aren't really that bad. I would honest
 
 ### Rust
 
-Rust types are a real pain to work with. A few issues[^1] I encountered:
+Rust types are a real pain to work with. To give a little taste: the Typescript program is about 900 lines of code (including the FEN parser) to the Rust version's 5000. A few issues[^1] I encountered:
 
 - Every Computation has to be performed twice.
 
