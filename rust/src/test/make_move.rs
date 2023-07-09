@@ -1,18 +1,7 @@
 use crate::{
-    board_rep::{
-        board::{Board, BoardRank},
-        color::{Black, White},
-        piece::{ColoredPiece, King, Pawn, Rook},
-        square::{
-            file,
-            offset::{NoSquare, SomeSquare},
-            rank, Square,
-        },
-    },
-    move_gen::Move,
-    state::{CastleState, FullCa, MakeMove, State, StateTy},
-    util::{board_creator::*, False, True},
-    values,
+    state::{CastleState, FullCa},
+    ui::prelude::*,
+    util::{False, True}, values,
 };
 
 #[test]
@@ -30,9 +19,6 @@ fn test_double_forward() {
     >;
     type S1 = State<White, B1, NoSquare, FullCa>;
 
-    type M =
-        Move<Square<rank::R2, file::FE>, Square<rank::R4, file::FE>, ColoredPiece<Pawn, White>>;
-
     type B2 = Board<
         //        AA  BB  CC  DD  EE  FF  GG  HH
         BoardRank<WR, WN, WB, WQ, WK, WB, WN, WR>, // 1
@@ -44,10 +30,10 @@ fn test_double_forward() {
         BoardRank<BP, BP, BP, BP, BP, BP, BP, BP>, // 7
         BoardRank<BR, BN, BB, BQ, BK, BB, BN, BR>, // 8
     >;
-    type EP = SomeSquare<Square<rank::R3, file::FE>>;
+    type EP = SomeSquare<E3>;
     type S2 = State<Black, B2, EP, FullCa>;
 
-    type Applied = MakeMove<M, S1>;
+    type Applied = MakeEM<S1, E2, E4>;
 
     assert_eq!(Applied::reify(), S2::reify());
 }
@@ -67,15 +53,6 @@ fn test_castle() {
     >;
     type S1 = State<White, B1, NoSquare, FullCa>;
 
-    type M = Move<
-        Square<rank::R1, file::FE>,
-        Square<rank::R1, file::FG>,
-        ColoredPiece<King, White>,
-        NoSquare,
-        SomeSquare<Square<rank::R1, file::FH>>,
-        SomeSquare<Square<rank::R1, file::FF>>,
-    >;
-
     type B2 = Board<
         //        AA  BB  CC  DD  EE  FF  GG  HH
         BoardRank<WR, WN, WB, WQ, __, WR, WK, __>, // 1
@@ -89,7 +66,7 @@ fn test_castle() {
     >;
     type S2 = State<Black, B2, NoSquare, CastleState<False, False, True, True>>;
 
-    type Applied = MakeMove<M, S1>;
+    type Applied = MakeEM<S1, E1, G1>;
 
     assert_eq!(Applied::reify(), S2::reify());
 }
@@ -107,16 +84,7 @@ fn test_take_ep() {
         BoardRank<BP, BP, BP, BP, __, BP, BP, BP>, // 7
         BoardRank<BR, BN, BB, BQ, BK, BB, BN, BR>, // 8
     >;
-    type EP = SomeSquare<Square<rank::R6, file::FE>>;
-    type S1 = State<White, B1, EP, FullCa>;
-
-    type EPDel = SomeSquare<Square<rank::R5, file::FE>>;
-    type M = Move<
-        Square<rank::R5, file::FD>,
-        Square<rank::R6, file::FE>,
-        ColoredPiece<Pawn, White>,
-        EPDel,
-    >;
+    type S1 = State<White, B1, SomeSquare<E6>, FullCa>;
 
     type B2 = Board<
         //        AA  BB  CC  DD  EE  FF  GG  HH
@@ -131,7 +99,7 @@ fn test_take_ep() {
     >;
     type S2 = State<Black, B2, NoSquare, FullCa>;
 
-    type Applied = MakeMove<M, S1>;
+    type Applied = MakeEM<S1, D5, E6>;
 
     assert_eq!(Applied::reify(), S2::reify());
 }
@@ -152,12 +120,10 @@ fn test_lose_castling() {
     type S1 = State<White, B1, NoSquare, FullCa>;
 
     {
-        type M =
-            Move<Square<rank::R1, file::FE>, Square<rank::R2, file::FE>, ColoredPiece<King, White>>;
-        type Applied = MakeMove<M, S1>;
+        type Applied = MakeEM<S1, E1, E2>;
 
         assert_eq!(
-            Applied::reify().castle_state,
+            Applied::reify().unwrap_state().castle_state,
             values::CastleState {
                 wk: false,
                 wq: false,
@@ -168,12 +134,10 @@ fn test_lose_castling() {
     }
 
     {
-        type M =
-            Move<Square<rank::R1, file::FA>, Square<rank::R8, file::FA>, ColoredPiece<Rook, White>>;
-        type Applied = MakeMove<M, S1>;
+        type Applied = MakeEM<S1, A1, A8>;
 
         assert_eq!(
-            Applied::reify().castle_state,
+            Applied::reify().unwrap_state().castle_state,
             values::CastleState {
                 wk: true,
                 wq: false,
@@ -184,12 +148,10 @@ fn test_lose_castling() {
     }
 
     {
-        type M =
-            Move<Square<rank::R1, file::FH>, Square<rank::R7, file::FH>, ColoredPiece<Rook, White>>;
-        type Applied = MakeMove<M, S1>;
+        type Applied = MakeEM<S1, H1, H7>;
 
         assert_eq!(
-            Applied::reify().castle_state,
+            Applied::reify().unwrap_state().castle_state,
             values::CastleState {
                 wk: false,
                 wq: true,

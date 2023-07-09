@@ -10,6 +10,19 @@ pub(crate) enum Color {
     Black,
 }
 
+impl Display for Color {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Color::White => "White",
+                Color::Black => "Black",
+            }
+        )
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Piece {
     Pawn,
@@ -94,6 +107,11 @@ pub(crate) struct Square {
     pub(crate) file: File,
 }
 impl Debug for Square {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}{:?}", self.file, self.rank)
+    }
+}
+impl Display for Square {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}{:?}", self.file, self.rank)
     }
@@ -203,7 +221,7 @@ impl Display for Board {
             }
             writeln!(f, "{rank}")?;
         }
-        writeln!(f, "  A B C D E F G H ")?;
+        write!(f, "  A B C D E F G H ")?;
 
         Ok(())
     }
@@ -276,7 +294,7 @@ impl Display for SquareSet {
             }
             writeln!(f, "{rank}")?;
         }
-        writeln!(f, "  A B C D E F G H ")?;
+        write!(f, "  A B C D E F G H ")?;
 
         Ok(())
     }
@@ -290,12 +308,51 @@ pub(crate) struct CastleState {
     pub(crate) bq: bool,
 }
 
+impl Display for CastleState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut res = String::with_capacity(4);
+        if self.wk {
+            res.push('K')
+        };
+        if self.wq {
+            res.push('Q')
+        };
+        if self.bk {
+            res.push('k')
+        };
+        if self.bq {
+            res.push('q')
+        };
+        if res == "" {
+            res.push('-')
+        }
+        write!(f, "{res}")
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct State {
     pub(crate) to_move: Color,
     pub(crate) pieces: Board,
     pub(crate) ep_square: Option<Square>,
     pub(crate) castle_state: CastleState,
+}
+
+impl Display for State {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "{}", self.pieces)?;
+        write!(
+            f,
+            "To move: {} | EP: {} | Castle: {}",
+            self.to_move,
+            if let Some(sq) = self.ep_square {
+                format!("{sq}")
+            } else {
+                "-".to_string()
+            },
+            self.castle_state
+        )
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -326,4 +383,34 @@ pub(crate) enum Outcome {
     Ongoing,
     Draw,
     Checkmate(Color),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum EMResult {
+    InvalidMove,
+    Ongoing(State),
+    Draw,
+    Checkmate(Color),
+}
+
+impl EMResult {
+    pub(crate) fn unwrap_state(&self) -> &State {
+        match self {
+            EMResult::InvalidMove => panic!("Expected state, got invalid move."),
+            EMResult::Ongoing(s) => s,
+            EMResult::Draw => panic!("Expected state, got draw."),
+            EMResult::Checkmate(c) => panic!("Expected state, got checkmate by {c}."),
+        }
+    }
+}
+
+impl Display for EMResult {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            EMResult::InvalidMove => write!(f, "Invalid move."),
+            EMResult::Ongoing(s) => write!(f, "{s}"),
+            EMResult::Draw => write!(f, "Draw by stalemate."),
+            EMResult::Checkmate(c) => write!(f, "Checkmate - {c} wins!"),
+        }
+    }
 }
