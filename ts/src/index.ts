@@ -37,11 +37,3 @@ type __DISPLAY__3 = PlayChess<`
 //   a4a3
 //   g7h8q
 // `
-
-// Fools mate
-// `
-//   f2f3
-//   e7e6
-//   g2g4
-//   d8h4
-// `

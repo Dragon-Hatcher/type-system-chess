@@ -16,8 +16,6 @@ type _PlayChess<St extends State, Ms extends string[]> = Ms extends [
     : RenderState<St>
   : RenderState<St>;
 
-type X = ParseMove<StartState, "skcjn">;
-
 type ParseMove<St extends State, M extends string> = NeverToNull<
   Moves<St> extends infer PM extends Move
     ? PM extends any // Split

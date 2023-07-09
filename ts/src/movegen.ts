@@ -204,7 +204,7 @@ type PawnEpMoves<
                   start: S;
                   end: OffsetSquare<S, Forward<OurC, -1>>;
                   piece: { piece: "Pawn"; color: OurC };
-                  ep: EP;
+                  ep: OffsetSquare<S, { rank: 0; file: -1 }>;
                 }
               : never
             : never)
@@ -214,7 +214,7 @@ type PawnEpMoves<
                   start: S;
                   end: OffsetSquare<S, Forward<OurC, 1>>;
                   piece: { piece: "Pawn"; color: OurC };
-                  ep: EP;
+                  ep: OffsetSquare<S, { rank: 0; file: 1 }>;
                 }
               : never
             : never)
@@ -226,7 +226,7 @@ type Move =
       start: Square;
       end: Square;
       piece: ColoredPiece;
-      ep: Square | null;
+      ep: Square | null; // Square of the pawn that needs to be removed
     }
   | {
       kingStart: Square;
@@ -393,6 +393,8 @@ type ApplyMoveToSq<
     ? null
     : S extends M["end"]
     ? M["piece"]
+    : S extends M["ep"]
+    ? null
     : IdxP<Ps, S>
   : M extends {
       kingStart: Square;
@@ -422,18 +424,23 @@ type ApplyMoveToEp<M extends Move> = M extends {
 
 type ApplyMoveToCastle<S extends State["castle"], M extends Move> = {
   White: {
-    kingside: _ApplyMoveToCastle<M, S["White"]["kingside"], SS<"H1">>;
-    queenside: _ApplyMoveToCastle<M, S["White"]["queenside"], SS<"A1">>;
+    kingside: _ApplyMoveToCastle<M, S["White"]["kingside"], SS<"H1">, SS<"E1">>;
+    queenside: _ApplyMoveToCastle<M, S["White"]["queenside"], SS<"A1">, SS<"E1">>;
   };
   Black: {
-    kingside: _ApplyMoveToCastle<M, S["Black"]["kingside"], SS<"H8">>;
-    queenside: _ApplyMoveToCastle<M, S["Black"]["queenside"], SS<"A8">>;
+    kingside: _ApplyMoveToCastle<M, S["Black"]["kingside"], SS<"H8">, SS<"E8">>;
+    queenside: _ApplyMoveToCastle<M, S["Black"]["queenside"], SS<"A8">, SS<"E8">>;
   };
 };
 type _ApplyMoveToCastle<
   M extends Move,
   Initial,
-  RookSquare extends Square
-> = M extends { piece: { piece: "King" } } | { start: RookSquare }
+  RookSquare extends Square,
+  KingSquare extends Square,
+> = M extends
+  | { start: RookSquare | KingSquare }
+  | { end: RookSquare }
+  | { kingStart: KingSquare }
   ? false
   : Initial;
+
