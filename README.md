@@ -2,6 +2,8 @@
 
 This repo contains chess implemented entirely in the (stable) Rust and Typescript type systems. Both languages feature turing complete type systems making this possible. 
 
+What I mean by a chess implementation is the ability to generate the list of legal moves and then select and play one by specifying the start and end square. See [Features](#Features) for more.
+
 I believe that this is the most complicated program implemented in the Rust type system. If you know of any similarly complex Rust projects please let me know.
 
 Other very complex type systems programs have been written in Typescript. For example, [HypeScript](https://github.com/ronami/HypeScript).
