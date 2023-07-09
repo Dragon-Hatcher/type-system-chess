@@ -58,7 +58,9 @@ As esoteric program languages go TS types aren't really that bad. I would honest
 
 ### Rust
 
-Rust types are a real pain to work with. To give a little taste: the Typescript program is about 900 lines of code (including the FEN parser) to the Rust version's 5000. A few issues[^1] I encountered:
+Rust types are a real pain to work with. To give a little taste: the Typescript program is about 900 lines of code (including the FEN parser) to the Rust version's 5000. 
+
+A few issues[^1] I encountered:
 
 - Every Computation has to be performed twice.
 
@@ -72,11 +74,11 @@ Rust types are a real pain to work with. To give a little taste: the Typescript 
 
   For some truly horifying examples of this look in `move_gen::castle`.
 
-- There is no form of negative reasoning. The results in the type `RankEq` (which checks if two ranks are equal) being implemented as a lookup table for all 64 combinations of two ranks.
+- There is no form of negative reasoning. This results in the type `RankEq` (which checks if two ranks are equal) being implemented as a lookup table for all 64 combinations of two ranks.
 
-- Ironically there is no way to get the Rust compiler to understand that an enum is closed. So just becuase you implement something for colors `White` and `Black` doesn't mean the Rust compiler knows that you have implemented it for all implementers of the `ColorEn`. (Again[^1]).
+- Ironically there is no way to get the Rust compiler to understand that an enum is closed. So just becuase you implement something for colors `White` and `Black` doesn't mean the Rust compiler knows that you have implemented it for all implementers of the trait `ColorEn`. (Again[^1]).
 
-- Since values can only exist in the top line of an impl block and not in the where clause matching on a value requires introducing a new nested type every time. You end up with a lot of types like `Foo` and then `FooWithValue` and `FooWithValueAndOtherValue`. It gets grating fast. 
+- Since values can only exist in the top line of an impl block and not in the where clause, matching on a value requires introducing a new nested type every time. You end up with a lot of types like `Foo` and then `FooWithValue` and `FooWithValueAndOtherValue`. It gets grating fast. 
 
 - Compile times are really slow.
 
