@@ -69,7 +69,7 @@ A few issues[^1] I encountered:
   ```rust
   where Baz: RunBar<Qaz>,
         Bar<Baz, Qaz>: RunFoo,
-  type Output = Foo<Bar<Baz>>
+  type Output = Foo<Bar<Baz, Qaz>>
   ```
 
   For some truly horifying examples of this look in `move_gen::castle`.
