@@ -2,6 +2,7 @@
   "name": "ts-types-chess",
   "version": "1.0.0",
   "main": "index.js",
+  "license": "MIT",
   "scripts": {
     "watch": "tsc -w",
     "build": "tsc",
