@@ -28,11 +28,13 @@ I have implemented a few tests for each program but it is likely that bugs still
 
 ## Performance
 
-Both programs are rather slow. Running the TS test suite takes about 30 seconds on my computer and running the Rust test suite takes about 10 minutes.
+Both programs are rather slow. Running the TS test suite takes about 30 seconds on my computer and running the Rust test suite takes about ~~10 minutes~~ 50 seconds.
+
+Update: An update was made to the Rust compiler specifically because of this project which speeds up compilation by an order of magnitude. See [this article](https://nnethercote.github.io/2023/08/25/how-to-speed-up-the-rust-compiler-in-august-2023.html) by [@nnethercote](https://github.com/nnethercote) about how he made this and other performance improvements to the Rust compiler.
 
 Rust performance was a fair bit better up until the end when I added the various complex pawn moves. I suspect that the compiler might have some extra difficulties with how these are implemented.
 
-I was almost able to get away without increasing the recursion limit for the rust program. It was fine after adding castling kingside but broke when I added queenside castling (i.e. it is very close to not needing the extra recursion).
+I was almost able to get away without increasing the recursion limit for the Rust program. It was fine after adding castling kingside but broke when I added queenside castling (i.e. it is very close to not needing the extra recursion).
 
 ## Inspiration
 
