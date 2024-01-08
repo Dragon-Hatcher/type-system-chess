@@ -38,8 +38,8 @@ fn main() {
     // type S4 = MakeEM<S3, F4, F5>;
     // type S5 = MakeEM<S4, A6, A5>;
     // type S6 = MakeEM<S5, F5, F6>;
-    // type S7 = MakeEM<S6, A5, A6>;
-    // type S8 = MakeEM<S7, F6, F7>;
+    // type S7 = MakeEM<S6, A5, A4>;
+    // type S8 = MakeEM<S7, F6, G7>;
     // type S9 = MakeEM<S8, A4, A3>;
     // type S10 = MakeEM<S9, G7, H8, Queen>;
     // println!("{}", S10::reify());
